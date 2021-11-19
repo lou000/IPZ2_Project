@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/register_fragment">
+
+    <fragment
+        android:id="@+id/register_fragment"
+        android:name="com.example.ipz_project_2.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_register_fragment_to_log_in_fragment"
+            app:destination="@id/LogInFragment" />
+        <action
+            android:id="@+id/action_register_fragment_to_fragment_contact_list"
+            app:destination="@id/contactListFragment" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/LogInFragment"
+        android:name="com.example.ipz_project_2.LogInFragment"
+        android:label="fragment_log_in"
+        tools:layout="@layout/fragment_log_in" />
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.ipz_project_2.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" />
+    <fragment
+        android:id="@+id/voiceRecordingsFragment"
+        android:name="com.example.ipz_project_2.VoiceRecordingsFragment"
+        android:label="fragment_voice_recordings"
+        tools:layout="@layout/fragment_voice_recordings" >
+        <action
+            android:id="@+id/action_voiceRecordingsFragment_to_voiceRecordingsListFragment"
+            app:destination="@id/voiceRecordingsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactListFragment"
+        android:name="com.example.ipz_project_2.ContactListFragment"
+        android:label="fragment_contact_list"
+        tools:layout="@layout/fragment_contact_list" />
+    <fragment
+        android:id="@+id/voiceRecordingsListFragment"
+        android:name="com.example.ipz_project_2.VoiceRecordingsListFragment"
+        android:label="fragment_voice_recordings_list"
+        tools:layout="@layout/fragment_voice_recordings_list" />
+</navigation>
