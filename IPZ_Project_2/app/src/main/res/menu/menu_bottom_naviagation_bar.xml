@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/register_fragment"
+        android:title="Register"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_chat_24"/>
+    <item
+        android:id="@+id/contactListFragment"
+        android:title="Chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_chat_24"/>
+
+    <item
+        android:id="@+id/voiceRecordingsFragment"
+        android:title="VoiceRec"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_chat_24"/>
+
+</menu>
