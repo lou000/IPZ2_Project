@@ -1,16 +1,17 @@
-package com.example.ipz_project_2
+package com.example.ipz_project_2.fragments
 
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.ipz_project_2.data.AppDatabase
+import com.example.ipz_project_2.R
+import com.example.ipz_project_2.data.voicemessage.VoiceMessage
+import com.example.ipz_project_2.data.voicemessage.VoiceMessageAdapter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 class VoiceRecordingsListFragment : Fragment() {
 
     private lateinit var records: ArrayList<VoiceMessage>
-    private lateinit var mAdapter: VoiceRecordingsAdapter
+    private lateinit var mAdapter: VoiceMessageAdapter
     private lateinit var recyclerview: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +40,7 @@ class VoiceRecordingsListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         records = ArrayList()
-        mAdapter = VoiceRecordingsAdapter(records)
+        mAdapter = VoiceMessageAdapter(records)
 
         recyclerview = view.findViewById(R.id.voice_recordings_recycler_view)
 
@@ -52,6 +53,8 @@ class VoiceRecordingsListFragment : Fragment() {
         fetchAll()
 
     }
+
+
 
 
     @SuppressLint("NotifyDataSetChanged")

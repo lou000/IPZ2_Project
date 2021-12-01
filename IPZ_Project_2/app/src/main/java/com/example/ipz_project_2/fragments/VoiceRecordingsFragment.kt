@@ -1,4 +1,4 @@
-package com.example.ipz_project_2
+package com.example.ipz_project_2.fragments
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,20 +8,18 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
 import android.util.Log
+import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.Chronometer
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.ipz_project_2.R
+import com.example.ipz_project_2.data.AppDatabase
+import com.example.ipz_project_2.data.voicemessage.VoiceMessage
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,22 +31,22 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+//private const val ARG_PARAM1 = "param1"
+//private const val ARG_PARAM2 = "param2"
 
-const val ANDROID_PERMISSION_REQUEST_CODE__READ_CONTACTS = 100
+
 const val ANDROID_PERMISSION_REQUEST_CODE__RECORD_AUDIO = 200
+
 
 private var rootView: View? = null
 
 class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
 
-    private var param1: String? = null
-    private var param2: String? = null
+
     private var permissions =
         arrayOf(android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.RECORD_AUDIO)
     private var permissionGrantedRecording = false
-    private var permissionGrantedReadContacts = false
+
 
     private lateinit var recorder: MediaRecorder
     private var dirPath = ""
@@ -69,11 +67,11 @@ class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-
-        }
+//        arguments?.let {
+//            param1 = it.getString(ARG_PARAM1)
+//            param2 = it.getString(ARG_PARAM2)
+//
+//        }
 
 
         requestPermissionLauncher =
@@ -103,7 +101,7 @@ class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
             context?.let {
                 ContextCompat.checkSelfPermission(
                     it,
-                    permissions[1]
+                    permissions[0]
                 )
             } == PackageManager.PERMISSION_GRANTED -> {
                 // You can use the API that requires the permission.
@@ -111,7 +109,7 @@ class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
             activity?.let {
                 ActivityCompat.shouldShowRequestPermissionRationale(
                     it,
-                    permissions[1]
+                    permissions[0]
                 )
             } == true -> {
                 rootView?.let {
@@ -127,37 +125,38 @@ class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
 
             }
             else -> {
-                requestPermissionLauncher.launch(permissions[1])
+                requestPermissionLauncher.launch(permissions[0])
             }
         }
-
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
+//        val someview = inflater.inflate(R.layout.activity_main,container,false)
+//        val toolbar = someview.findViewById<Toolbar>(R.id.my_toolbar)
+//        toolbar.inflateMenu(R.menu.menu_upper)
+//        toolbar.title = "SSSSSSSSS"
+//        requireActivity().title="dfsdfsdf"
 
         rootView = inflater.inflate(R.layout.fragment_voice_recordings, container, false)
         return rootView
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            VoiceRecordingsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_contact_llist_fragment,menu)
+
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        permissionGrantedReadContacts = context?.let {
+
+
+        permissionGrantedRecording = context?.let {
             ContextCompat.checkSelfPermission(
                 it,
                 permissions[0]
@@ -354,5 +353,6 @@ class VoiceRecordingsFragment : Fragment(), View.OnClickListener {
       return "$minutes:$seconds"
 
     }
+
 }
 

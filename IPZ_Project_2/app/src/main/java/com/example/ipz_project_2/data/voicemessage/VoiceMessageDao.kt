@@ -1,4 +1,4 @@
-package com.example.ipz_project_2
+package com.example.ipz_project_2.data.voicemessage
 
 import androidx.room.*
 
