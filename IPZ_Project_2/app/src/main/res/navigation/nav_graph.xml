@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/register_fragment"
-        android:name="com.example.ipz_project_2.RegisterFragment"
-        android:label="fragment_register"
-        tools:layout="@layout/fragment_register" >
+        android:name="com.example.ipz_project_2.fragments.RegisterFragment"
+        android:label="Regiter"
+        tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_register_fragment_to_log_in_fragment"
             app:destination="@id/LogInFragment" />
@@ -20,31 +20,59 @@
     </fragment>
     <fragment
         android:id="@+id/LogInFragment"
-        android:name="com.example.ipz_project_2.LogInFragment"
-        android:label="fragment_log_in"
+        android:name="com.example.ipz_project_2.fragments.LogInFragment"
+        android:label="Login"
         tools:layout="@layout/fragment_log_in" />
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.ipz_project_2.ChatFragment"
-        android:label="fragment_chat"
-        tools:layout="@layout/fragment_chat" />
+        android:name="com.example.ipz_project_2.fragments.ChatFragment"
+        tools:layout="@layout/fragment_chat"
+        android:label="{label}">
+        <argument
+            android:name="currentContact"
+            app:argType="com.example.ipz_project_2.data.contact.Contact" />
+        <argument
+            android:name="label"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactListFragment"
+        android:name="com.example.ipz_project_2.fragments.ContactListFragment"
+        android:label="fragment_contact_list"
+        tools:layout="@layout/fragment_contact_list" >
+        <action
+            android:id="@+id/action_contactListFragment_to_newMessageFragment"
+            app:destination="@id/newMessageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/voiceRecordingsListFragment"
+        android:name="com.example.ipz_project_2.fragments.VoiceRecordingsListFragment"
+        android:label="fragment_voice_recordings_list"
+        tools:layout="@layout/fragment_voice_recordings_list" />
+    <fragment
+        android:id="@+id/newMessageFragment"
+        android:name="com.example.ipz_project_2.fragments.NewMessageFragment"
+        android:label="New Message" >
+        <action
+            android:id="@+id/action_newMessageFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addNewContactFragment"
+        android:name="com.example.ipz_project_2.fragments.AddNewContactFragment"
+        android:label="new_contact"
+        tools:layout="@layout/fragment_add_new_contact" >
+        <action
+            android:id="@+id/action_addNewContactFragment_to_newMessageFragment"
+            app:destination="@id/newMessageFragment" />
+    </fragment>
     <fragment
         android:id="@+id/voiceRecordingsFragment"
-        android:name="com.example.ipz_project_2.VoiceRecordingsFragment"
+        android:name="com.example.ipz_project_2.fragments.VoiceRecordingsFragment"
         android:label="fragment_voice_recordings"
         tools:layout="@layout/fragment_voice_recordings" >
         <action
             android:id="@+id/action_voiceRecordingsFragment_to_voiceRecordingsListFragment"
             app:destination="@id/voiceRecordingsListFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/contactListFragment"
-        android:name="com.example.ipz_project_2.ContactListFragment"
-        android:label="fragment_contact_list"
-        tools:layout="@layout/fragment_contact_list" />
-    <fragment
-        android:id="@+id/voiceRecordingsListFragment"
-        android:name="com.example.ipz_project_2.VoiceRecordingsListFragment"
-        android:label="fragment_voice_recordings_list"
-        tools:layout="@layout/fragment_voice_recordings_list" />
 </navigation>

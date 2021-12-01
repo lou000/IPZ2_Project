@@ -3,6 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/activity_main.xml" value="0.20742753623188406" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/contact_list_item.xml" value="0.1" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_add_new_contact.xml" value="0.1" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_chat.xml" value="0.176" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_contact_list.xml" value="0.18115942028985507" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_log_in.xml" value="0.12360688956433637" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_new_contact.xml" value="0.264" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_new_message.xml" value="0.1" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_register.xml" value="0.2128623188405797" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_secondary.xml" value="0.1" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings.xml" value="0.18115942028985507" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings_list.xml" value="0.4" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/new_message_user_item.xml" value="0.2" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/voice_message_list_item.xml" value="0.4" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/menu/menu_bottom_naviagation_bar.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/menu/menu_contact_llist_fragment.xml" value="0.1" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/menu/menu_new_message_fragment.xml" value="0.12864583333333332" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/menu/menu_upper.xml" value="0.1734375" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/drawable/ic_baseline_chat_24.xml" value="0.25462962962962965" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/drawable/ic_delete.xml" value="0.2564814814814815" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/drawable/ic_delete_disabled.xml" value="0.2564814814814815" />

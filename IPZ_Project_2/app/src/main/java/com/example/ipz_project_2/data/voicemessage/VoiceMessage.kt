@@ -1,4 +1,4 @@
-package com.example.ipz_project_2
+package com.example.ipz_project_2.data.voicemessage
 
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -18,7 +18,6 @@ data class VoiceMessage(
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L
-    @Ignore
-    var isChecked = false
+
 
 }
