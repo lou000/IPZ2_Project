@@ -16,4 +16,6 @@ data class Contact(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L
 
+
+
 }

@@ -20,6 +20,16 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.lang.Exception
+import java.net.Inet4Address
+import java.net.NetworkInterface
+import java.math.BigInteger
+import java.security.MessageDigest
+
+fun sha_256(input: String): String {
+    val md = MessageDigest.getInstance("SHA-1")
+    return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
+}
 
 
 class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListener {
@@ -28,10 +38,10 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var registerButton: Button
 
-    private lateinit var username: String
-    private lateinit var email: String
-    private lateinit var phoneNumber: String
-    private lateinit var password: String
+//    private lateinit var username: String
+//    private lateinit var email: String
+//    private lateinit var phoneNumber: String
+//    private lateinit var password: String
 
     private lateinit var binding: FragmentRegisterBinding
     private lateinit var navController: NavController
@@ -39,42 +49,38 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var mDatabase: DatabaseReference
-    private lateinit var new_user: User
+    private lateinit var currentUser: FirebaseUser
+//    private lateinit var new_user: User
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = Firebase.auth
+        database = Firebase.database
+        mDatabase = database.getReference("user")
+        if (auth.currentUser != null) { //TODO Make function of this
+            Log.d("Auth", "Logged in")
+            currentUser = auth.currentUser!!
+//            navController.navigate(R.id.contactListFragment)
+//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)  //TODO
 
+        } else {
+            Log.d("Auth", "Not logged in")
+//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)//TODO
 
-
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        auth = Firebase.auth
-        database = Firebase.database
-        mDatabase = database.getReference("user")
         binding = FragmentRegisterBinding.bind(view)
         navController = Navigation.findNavController(view)
 
-        var currentUser = auth.currentUser
-
-        if (currentUser != null) { //TODO Make function of this
-//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)  //TODO
-            Log.d("Auth", "Logged in")
-        } else {
-//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)//TODO
-            Log.d("Auth", "Not logged in")
-        }
-
-        username = binding.usernameRegister.text.toString().trim()
-        email = binding.emailRegister.text.toString().trim()
-        phoneNumber = binding.phoneRegister.text.toString().trim()
-        password = binding.passwordRegister.text.toString().trim()
         registerButton = binding.registerButton
         accountAlreadyCreated = binding.accountAlreadyCreatedTextview
+
+
 
         accountAlreadyCreated.setOnClickListener(this)
         registerButton.setOnClickListener(this)
@@ -83,7 +89,13 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     }
 
     private fun getIP(): String {
+        // not working solution
         //TODO IMPLEMENT (hardcoded for tests)
+        NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
+            networkInterface.inetAddresses?.toList()?.find {
+                !it.isLoopbackAddress && it is Inet4Address
+            }?.let { return it.hostAddress }
+        }
         return "SOME IP"
     }
 
@@ -96,38 +108,44 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     }
 
     private fun registerUser() {
-        username = binding.usernameRegister.text.toString().trim()
-        email = binding.emailRegister.text.toString().trim()
-        phoneNumber = binding.phoneRegister.text.toString().trim()
-        password = binding.passwordRegister.text.toString().trim()
+        val username: String = binding.usernameRegister.text.toString().trim()
+        val email: String = binding.emailRegister.text.toString().trim()
+        val phoneNumber: String = binding.phoneRegister.text.toString().trim()
+        val password: String = binding.passwordRegister.text.toString().trim()
 
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
+            .addOnCompleteListener() { it ->
+                val user = auth.currentUser
+                    ?: throw Exception("Firebase connection could not be established")
+
+                // user already exists, lets login him
                 if (!it.isSuccessful) {
-
-                    val user = auth.currentUser
-                    if (user != null) {
-                        new_user = User(username, email, phoneNumber, password, getIP(),user.uid)
-                    }
-                        updateUI(user)
+                    Log.d("Register", "User exists")
+                    updateUI(
+                        user,
+                        User(username, email, phoneNumber, getIP())
+                    )
                 } else {
-                    Log.d("Register", "New User Failed")
-                    updateUI(null)
-
+                    //user doesn't exist, lets register him
+                    Log.d("Register", "createUserWithEmail:success")
+                    updateUI(user, User(username, email, phoneNumber, getIP()))
                 }
             }
+
+
     }
 
-    private fun updateUI(user: FirebaseUser?) {
+
+    private fun updateUI(user: FirebaseUser?, new_user: User) {
+        //TODO: info about login/registration success
         val viewModel: FirebaseUserViewModel by activityViewModels()
         viewModel.selectItem(user)
-        mDatabase.child(new_user.uid).setValue(new_user)
-//        if(user!=null){
-//            mDatabase.child(username).setValue(new_user)
-
-            }
-
-        }
+        val to_encode = new_user.username + new_user.phoneNumber
+        val res = String(sha_256(to_encode).toByteArray())
+        Log.e("hash",res)
+        mDatabase.child(res).setValue(new_user)
+    }
+}
 
 
 
