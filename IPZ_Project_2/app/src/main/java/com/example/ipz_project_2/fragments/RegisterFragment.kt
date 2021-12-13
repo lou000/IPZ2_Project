@@ -9,6 +9,9 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.ipz_project_2.FirebaseUserViewModel
 import com.example.ipz_project_2.R
 import com.example.ipz_project_2.User
@@ -21,16 +24,22 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.lang.Exception
-import java.net.Inet4Address
-import java.net.NetworkInterface
 import java.math.BigInteger
 import java.security.MessageDigest
+import javax.xml.transform.ErrorListener
+import com.android.volley.VolleyError
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+
 
 fun sha_256(input: String): String {
     val md = MessageDigest.getInstance("SHA-1")
     return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
 }
 
+interface VolleyCallBack {
+    fun onSuccess()
+}
 
 class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListener {
 
@@ -50,12 +59,14 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     private lateinit var database: FirebaseDatabase
     private lateinit var mDatabase: DatabaseReference
     private lateinit var currentUser: FirebaseUser
+    private lateinit var ip: String
 //    private lateinit var new_user: User
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+
         database = Firebase.database
         mDatabase = database.getReference("user")
         if (auth.currentUser != null) { //TODO Make function of this
@@ -69,6 +80,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 //            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)//TODO
 
         }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,19 +96,25 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
         accountAlreadyCreated.setOnClickListener(this)
         registerButton.setOnClickListener(this)
-
+        getIP()
 
     }
 
-    private fun getIP(): String {
-        // not working solution
-        //TODO IMPLEMENT (hardcoded for tests)
-        NetworkInterface.getNetworkInterfaces()?.toList()?.map { networkInterface ->
-            networkInterface.inetAddresses?.toList()?.find {
-                !it.isLoopbackAddress && it is Inet4Address
-            }?.let { return it.hostAddress }
-        }
-        return "SOME IP"
+    private fun getIP() {
+        Log.i("getIP", " Called getIp")
+        val queue = Volley.newRequestQueue(this.activity)
+
+        val urlip = "http://checkip.amazonaws.com/"
+        val stringRequest = StringRequest(
+            Request.Method.GET, urlip,
+            { response ->
+                Log.i("getIp", "got respone")
+                Log.i("getIp", response)
+
+                this.ip = response.filter { !it.isWhitespace() }
+            }, null
+        )
+        queue.add(stringRequest)
     }
 
     override fun onClick(v: View?) {
@@ -123,12 +141,12 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
                     Log.d("Register", "User exists")
                     updateUI(
                         user,
-                        User(username, email, phoneNumber, getIP())
+                        User(username, email, phoneNumber, ip)
                     )
                 } else {
                     //user doesn't exist, lets register him
                     Log.d("Register", "createUserWithEmail:success")
-                    updateUI(user, User(username, email, phoneNumber, getIP()))
+                    updateUI(user, User(username, email, phoneNumber, ip))
                 }
             }
 
@@ -142,7 +160,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         viewModel.selectItem(user)
         val to_encode = new_user.username + new_user.phoneNumber
         val res = String(sha_256(to_encode).toByteArray())
-        Log.e("hash",res)
+        Log.e("hash", res)
         mDatabase.child(res).setValue(new_user)
     }
 }

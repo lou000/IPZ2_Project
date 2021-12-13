@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ipz_project_2.data.AppDatabase
@@ -59,14 +60,14 @@ class VoiceRecordingsListFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchAll() {
-        GlobalScope.launch {
-            records.clear()
-            var queryResult: List<VoiceMessage>? =
-                context?.let { AppDatabase.getInstance(it).voiceMessageDao.getAll() }
-            if (queryResult != null) {
-                records.addAll(queryResult)
-            }
-            mAdapter.notifyDataSetChanged()
-        }
+//        GlobalScope.launch {
+//            records.clear()
+//            var queryResult: LiveData<List<VoiceMessage>>? =
+//                context?.let { AppDatabase.getInstance(it).voiceMessageDao.getAll() }
+//            if (queryResult != null) {
+//                records.addAll(queryResult)
+//            }
+//            mAdapter.notifyDataSetChanged()
+//        }
     }
 }
