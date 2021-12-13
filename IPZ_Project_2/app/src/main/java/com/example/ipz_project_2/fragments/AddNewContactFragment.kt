@@ -22,7 +22,14 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.lang.Exception
+import java.math.BigInteger
+import java.security.MessageDigest
 
+fun sha_256_(input: String): String {
+    val md = MessageDigest.getInstance("SHA-1")
+    return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
+}
 
 class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
 
@@ -74,9 +81,28 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
         username = binding.usernameAddNewContact.text.toString().trim()
         phoneNumber = binding.phonenumberAddNewContact.text.toString().trim()
         new_contact = Contact(username, phoneNumber)
-        mContactViewModel.addContact(new_contact)
+        val to_encode = username + phoneNumber
 
-        findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+        val res = String(sha_256(to_encode).toByteArray())
+        Log.e("hash",res)
+        mDatabase.child(res).get().addOnSuccessListener {
+            Log.i("firebase", "Got value ${it.value}")
+            if(it.value == null)
+            {
+                // TODO handle this
+                Log.e("firebase","user not found")
+                throw Exception("User not found in db")
+            }
+            else
+            {
+                mContactViewModel.addContact(new_contact)
+                findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+            }
+
+        }
+
+
+
     }
 }
 
