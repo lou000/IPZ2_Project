@@ -31,7 +31,10 @@ const val PERMISSION_REQUEST_CONTACTS = 0
 class ContactListFragment : Fragment(R.layout.fragment_contact_list),
 ContactsAdapter.OnItemClickListener {
 
-
+    // TODO:
+    //  - All of this should work asynchronously and probably run at the start of the app
+    //  - We should not read all users from database, but db functions are only in paid version
+    //  - This will work but its laggy and idgaf
     private val contacts: MutableList<Contact> = mutableListOf()
     private val dbPhoneNr: MutableList<String> = mutableListOf()
 
