@@ -13,9 +13,6 @@
         <action
             android:id="@+id/action_register_fragment_to_log_in_fragment"
             app:destination="@id/LogInFragment" />
-        <action
-            android:id="@+id/action_register_fragment_to_fragment_contact_list"
-            app:destination="@id/contactListFragment" />
 
     </fragment>
     <fragment
@@ -41,31 +38,14 @@
         android:label="fragment_contact_list"
         tools:layout="@layout/fragment_contact_list" >
         <action
-            android:id="@+id/action_contactListFragment_to_newMessageFragment"
-            app:destination="@id/newMessageFragment" />
+            android:id="@+id/action_contactListFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
     </fragment>
     <fragment
         android:id="@+id/voiceRecordingsListFragment"
         android:name="com.example.ipz_project_2.fragments.VoiceRecordingsListFragment"
         android:label="fragment_voice_recordings_list"
         tools:layout="@layout/fragment_voice_recordings_list" />
-    <fragment
-        android:id="@+id/newMessageFragment"
-        android:name="com.example.ipz_project_2.fragments.NewMessageFragment"
-        android:label="New Message" >
-        <action
-            android:id="@+id/action_newMessageFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/addNewContactFragment"
-        android:name="com.example.ipz_project_2.fragments.AddNewContactFragment"
-        android:label="new_contact"
-        tools:layout="@layout/fragment_add_new_contact" >
-        <action
-            android:id="@+id/action_addNewContactFragment_to_newMessageFragment"
-            app:destination="@id/newMessageFragment" />
-    </fragment>
     <fragment
         android:id="@+id/voiceRecordingsFragment"
         android:name="com.example.ipz_project_2.fragments.VoiceRecordingsFragment"

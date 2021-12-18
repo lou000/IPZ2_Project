@@ -3,6 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/contact_list_item.xml" value="0.24547101449275363" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_chat.xml" value="0.3307291666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_contact_list.xml" value="0.3307291666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_register.xml" value="0.3307291666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings.xml" value="0.3307291666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/menu/menu_bottom_naviagation_bar.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/menu/menu_contact_llist_fragment.xml" value="0.5541666666666667" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/IPZ2_Project/IPZ_Project_2/app/src/main/res/menu/menu_new_message_fragment.xml" value="0.5541666666666667" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/activity_main.xml" value="0.20742753623188406" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/contact_list_item.xml" value="0.1" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ2_Maciek_Repo/IPZ_Project_2/app/src/main/res/layout/fragment_add_new_contact.xml" value="0.1" />
@@ -49,6 +58,9 @@
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings_list.xml" value="0.1082427536231884" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/layout/voice_message_list_item.xml" value="0.403125" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2/app/src/main/res/menu/menu_bottom_naviagation_bar.xml" value="0.25416666666666665" />
+        <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_chat.xml" value="0.20104166666666667" />
+        <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_contact_list.xml" value="0.20104166666666667" />
+        <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings_list.xml" value="0.20572916666666666" />
       </map>
     </option>
   </component>

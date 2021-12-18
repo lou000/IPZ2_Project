@@ -7,13 +7,9 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity(tableName = "contacts")
 data class Contact(
     var name: String,
     var phoneNumber: String,
+    var isInDatabase: Boolean
 
-):Parcelable {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0L
-
-}
+) : Parcelable

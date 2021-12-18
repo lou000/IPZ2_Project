@@ -21,8 +21,7 @@
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:background="@color/purple_700"
-        app:menu="@menu/menu_bottom_naviagation_bar"
-   />
+        app:menu="@menu/menu_bottom_naviagation_bar" />
 
 
     <androidx.fragment.app.FragmentContainerView
@@ -37,16 +36,3 @@
 
 
 </RelativeLayout>
-    <!--            app:layout_constraintTop_toBottomOf="@id/my_toolbar"-->
-
-    <!--    <android.widget.Toolbar-->
-    <!--        android:id="@+id/my_toolbar"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="?attr/actionBarSize"-->
-    <!--        android:background="?attr/colorPrimary"-->
-    <!--        android:elevation="4dp"-->
-    <!--        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
-    <!--        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-    <!--        tools:ignore="MissingConstraints"-->
-    <!--        app:title="@string/app_name"-->
-    <!--        android:title="@string/app_name"/>-->

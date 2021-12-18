@@ -24,7 +24,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-   requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.GONE
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.GONE
         return inflater.inflate(R.layout.fragment_chat, container, false)
     }
 

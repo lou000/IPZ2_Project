@@ -30,9 +30,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        val toolbar = findViewById<Toolbar>(R.id.my_toolbar)
-//        toolbar.inflateMenu(R.menu.menu_upper)
-
 
         auth = Firebase.auth
         var currentUser = auth.currentUser
@@ -51,8 +48,6 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
 //        appBarConfiguration = AppBarConfiguration(setOf(R.id.login_fragment, R.id.register_fragment)) //TODO Usunac back button na wybranyh fragmentach??
         setupActionBarWithNavController(navController,appBarConfiguration)
-//        NavigationUI.setupWithNavController(navBar, navController)
-
 
 
     }

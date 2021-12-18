@@ -1,15 +1,16 @@
 package com.example.ipz_project_2.data.contact
 
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ipz_project_2.R
-import com.example.ipz_project_2.fragments.NewMessageFragmentDirections
 
 
 class ContactsAdapter(
@@ -22,6 +23,7 @@ class ContactsAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
         var username: TextView = itemView.findViewById(R.id.contact_list_item_name)
+        var phoneNr: TextView = itemView.findViewById(R.id.contact_list_item_phone)
         var contactListItem: ConstraintLayout = itemView.findViewById(R.id.contact_list_item)
 
         init {
@@ -48,11 +50,12 @@ class ContactsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (position != RecyclerView.NO_POSITION) {
-            var contact: Contact = contacts[position]
+            val contact: Contact = contacts[position]
             holder.username.text = contact.name
+            holder.phoneNr.text = contact.phoneNumber
+            var logo = holder.contactListItem.findViewById<ImageView>(R.id.chat_logo)
+            logo.visibility = if (contact.isInDatabase)  View.VISIBLE else View.INVISIBLE
             holder.contactListItem.setOnClickListener{
-                val action = NewMessageFragmentDirections.actionNewMessageFragmentToChatFragment(contact,label = contact.name)
-                navController.navigate(action)
             }
         }}
 
@@ -60,6 +63,7 @@ class ContactsAdapter(
         return contacts.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(contact: List<Contact>) {
         this.contacts = contact
         notifyDataSetChanged()
