@@ -1,12 +1,11 @@
 package com.example.ipz_project_2.data.voicemessage
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
 interface VoiceMessageDao {
     @Query("SELECT * FROM voiceMessages")
-    fun getAll(): LiveData<List<VoiceMessage>>
+    fun getAll(): List<VoiceMessage>
 
     @Insert
     fun insert(vararg voiceMessage: VoiceMessage)
