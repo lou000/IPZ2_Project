@@ -5,5 +5,8 @@
     <string name="hello_blank_fragment2">Hello blank fragment 2</string>
     <string name="permission_required">Permission is requierd to use this function</string>
     <string name="add_contact">Add</string>
+    <string name="provide_otp">Provide Otp code you got on your mail</string>
+    <string name="otp_code">OTP COdE</string>
+    <string name="confirm">Confirm</string>
 
 </resources>
