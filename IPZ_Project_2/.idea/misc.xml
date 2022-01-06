@@ -84,6 +84,8 @@
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/menu/menu_bottom_naviagation_bar.xml" value="0.25416666666666665" />
         <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_chat.xml" value="0.20104166666666667" />
         <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_contact_list.xml" value="0.20104166666666667" />
+        <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_log_in.xml" value="0.20572916666666666" />
+        <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_otpcode.xml" value="0.20572916666666666" />
         <entry key="..\:/ipz2/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_voice_recordings_list.xml" value="0.20572916666666666" />
       </map>
     </option>
