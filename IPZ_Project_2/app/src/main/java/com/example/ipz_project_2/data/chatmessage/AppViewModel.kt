@@ -3,7 +3,6 @@ package com.example.ipz_project_2.data.chatmessage
 import androidx.lifecycle.*
 import com.example.ipz_project_2.data.contact.Contact
 import com.example.ipz_project_2.data.contact.ContactRepository
-import com.example.ipz_project_2.data.message.TextMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

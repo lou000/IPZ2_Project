@@ -142,7 +142,6 @@ class ChatFragment : Fragment() {
         binding.btnPlayChat.setOnClickListener {
             val mediaPlayer = MediaPlayer()
             val filePath = "$dirPath$filename.mp3"
-            Log.e("TESTINF", "OUT $filePath")
             mediaPlayer.apply {
                 setDataSource(filePath)
                 prepare()
@@ -168,13 +167,6 @@ class ChatFragment : Fragment() {
             timeWhenStopped = 0;
         }
 
-//        binding.chatRecyclerView.setOnClickListener{
-//            Log.e("TAG","AAAAAA")
-//            val inputMethodManager =
-//                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
-//        }
-
 // -------------------------------------------------------------------------------------------------------- CLICK LISTENERS END
         return view
     }
@@ -185,7 +177,6 @@ class ChatFragment : Fragment() {
             setDataSource(filePath)
             prepare()
         }
-        Log.e("TESTINF", "OUT $filePath")
         mediaPlayer.start()
     }
 
@@ -260,7 +251,6 @@ class ChatFragment : Fragment() {
             }
             TYPE_VOICE_FIREBASE -> {
                 if (filePath != null) {
-                    Log.e("TESTINF","DIRPATH INCOMING $filePath")
                 }
                 return ChatMessage(
                     TYPE_VOICE_INCOMING,
@@ -331,11 +321,9 @@ class ChatFragment : Fragment() {
 
                             dirPath =
                                 requireActivity().getExternalFilesDir("/")?.absolutePath.toString()
-                            Log.e("TESTINF","DIRPATH 77 INCOMING $dirPath")
                             val filename =
                                 "in_${args.currentContact.uid}_${firebaseMessage.timestamp}.mp3"
                             val file: File = File(dirPath, filename)
-                            Log.e("TESTINF","DIRPATH filee INCOMING ${file.absolutePath}")
                             reference.getFile(file).addOnSuccessListener {
                                 val voiceChatMessage = createChatMessageIncoming(
                                     firebaseMessage,
@@ -393,44 +381,25 @@ class ChatFragment : Fragment() {
     }
 
     private fun startRecording() {
-        Log.e("TESTINF", "START RECORDING1")
-
         timer.base = SystemClock.elapsedRealtime() - timeWhenStopped
-        Log.e("TESTINF", "START RECORDING2")
         timer.start()
-        Log.e("TESTINF", "START RECORDING3")
         dirPath = requireActivity().getExternalFilesDir("/")?.absolutePath.toString()
-        Log.e("TESTINF", "START RECORDING4")
         filename = "audio_record_${Date().time}"
-        Log.e("TESTINF", "START RECORDING5")
         recorder = MediaRecorder()
-        Log.e("TESTINF", "START RECORDING5 __")
         recorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
-            Log.e("TESTINF", "START RECORDING5 A")
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            Log.e("TESTINF", "START RECORDING5 B")
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            Log.e("TESTINF", "START RECORDING5 C ")
             setOutputFile("$dirPath$filename.mp3")
-            Log.e("TESTINF", "START RECORDING5 D")
-
             prepare()
-            Log.e("TESTINF", "START RECORDING5 E")
             start()
-            Log.e("TESTINF", "START RECORDING5 F")
         }
-        Log.e("TESTINF", "START RECORDING6")
         binding.recordButtonChat.setBackgroundResource(R.drawable.ic_pause)
-        Log.e("TESTINF", "START RECORDING7")
         isRecording = true
-        Log.e("TESTINF", "START RECORDING8")
         isPaused = false
-        Log.e("TESTINF", "START RECORDING9")
     }
 
     private fun pauseRecording() {
-        Log.e("TESTINF", "PAUSE RECORDING")
         timer.stop()
         timeWhenStopped = SystemClock.elapsedRealtime() - timer.base;
         recorder.pause()
@@ -439,7 +408,6 @@ class ChatFragment : Fragment() {
     }
 
     private fun resumeRecording() {
-        Log.e("TESTINF", "RESUME")
         timer.base = SystemClock.elapsedRealtime() - timeWhenStopped
         timer.start()
         recorder.resume()
@@ -448,7 +416,6 @@ class ChatFragment : Fragment() {
     }
 
     private fun stopRecording() {
-        Log.e("TESTINF", "STOP")
         //TODO button stop recording should be disabled unless start recording was activated
         timer.stop()
         recorder.stop()
@@ -463,7 +430,7 @@ class ChatFragment : Fragment() {
     }
 
 
-    private fun sendRecording() { //TODO ZAMINIC NAZWE
+    private fun sendRecording() {
 
         val filePath = "$dirPath$filename.mp3"
         val storage = Firebase.storage
@@ -494,12 +461,8 @@ class ChatFragment : Fragment() {
                 // ...
             }
         }
-
-
 //        LocalDateTime.now(TimeZone.getDefault().toZoneId())
 //            .format(DateTimeFormatter.ofPattern("HH:mm"))
-
-
     }
 
     private fun saveVoiceMessageToDatabases(downloadUri: Uri?) {

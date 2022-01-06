@@ -47,16 +47,12 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
             im.setOnClickListener { v: View ->
                 val position: Int = absoluteAdapterPosition
                 val mediaPlayer = MediaPlayer()
-                Log.e("TESTINF", "IN ${chatMessage.filePath}")
                 mediaPlayer.apply {
                     setDataSource(chatMessage.filePath)
                     prepare()
                 }
                 mediaPlayer.start()
-                Log.e("TESTINF", "YOU CLICKED ${position}")
             }
-
-
         }
     }
 
@@ -68,23 +64,12 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
                 val position: Int = absoluteAdapterPosition
                 val mediaPlayer = MediaPlayer()
                 mediaPlayer.apply {
-                    Log.e("TESTINF", "OUT ${chatMessage.filePath}")
                     setDataSource(chatMessage.filePath)
                     prepare()
                 }
                 mediaPlayer.start()
-                Log.e("TESTINF", "YOU CLICKED ${position}")
             }
         }
-
-//        init {
-//            var prog: ProgressBar = itemView.findViewById(R.id.outgoingProgressBar)
-//            var im: ImageView = itemView.findViewById(R.id.outgoingPlayImageView)
-//            im.setOnClickListener { v: View ->
-//                val position: Int = absoluteAdapterPosition
-//
-//                Log.e("TESTINF","YOU CLICKED ${position}")
-//            }
     }
 
 
@@ -108,7 +93,6 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
             )
         }
     }
-
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         when (chatMessages[position].type) {
@@ -135,13 +119,4 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
             else -> TYPE_VOICE_OUTGOING
         }
     }
-
-//    private fun playVoiceMessage(filePath: String?) {
-//        val mediaPlayer = MediaPlayer()
-//        mediaPlayer.apply {
-//            setDataSource(filePath)
-//            prepare()
-//        }
-//        mediaPlayer.start()
-//    }
 }

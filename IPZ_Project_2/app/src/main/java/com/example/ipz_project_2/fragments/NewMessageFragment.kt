@@ -45,10 +45,7 @@ class NewMessageFragment : Fragment(R.layout.fragment_new_message),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-
             val view = inflater.inflate(R.layout.fragment_new_message, container, false)
-
 
         setHasOptionsMenu(true)
         contacts = ArrayList()
