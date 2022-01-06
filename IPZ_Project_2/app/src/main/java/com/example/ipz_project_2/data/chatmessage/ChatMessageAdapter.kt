@@ -22,6 +22,7 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
 
     class TextIncomingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(chatMessage: ChatMessage) {
+
             var messageText: TextView = itemView.findViewById(R.id.incomingText)
             var time: TextView = itemView.findViewById(R.id.incomingTime)
 

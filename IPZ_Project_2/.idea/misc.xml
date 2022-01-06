@@ -64,12 +64,12 @@
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_item.xml" value="0.2" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_receiver.xml" value="0.264" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_sender.xml" value="0.13020833333333334" />
-        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_text_incoming_item.xml" value="0.14895833333333333" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_text_incoming_item.xml" value="0.264" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_text_outgoing.xml" value="0.14895833333333333" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_text_outgoing_item.xml" value="0.14583333333333334" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_voice_incoming_item.xml" value="0.264" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_voice_item_left.xml" value="0.6" />
-        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_voice_outgoing_item.xml" value="0.6" />
+        <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/chat_voice_outgoing_item.xml" value="0.4" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/contact_list_item.xml" value="0.20652173913043478" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_chat.xml" value="0.16" />
         <entry key="..\:/Users/dolch/AndroidStudioProjects/IPZ_Project_2_Current/IPZ2_Project/IPZ_Project_2/app/src/main/res/layout/fragment_contact_list.xml" value="0.20652173913043478" />

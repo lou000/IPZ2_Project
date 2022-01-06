@@ -74,6 +74,12 @@ class ChatFragment : Fragment() {
 
     val appViewModel: AppViewModel by activityViewModels()
 
+    override fun onResume() {
+        super.onResume()
+//                recyclerview.smoothScrollToPosition(chatMessageAdapter.itemCount - 1)
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,6 +95,7 @@ class ChatFragment : Fragment() {
 
         chatMessages = listOf()
         chatMessageAdapter = ChatMessageAdapter(chatMessages)
+
         recyclerview = binding.chatRecyclerView
         recyclerview.apply {
             adapter = chatMessageAdapter
@@ -100,7 +107,16 @@ class ChatFragment : Fragment() {
         appViewModel.getUserMessages(args.currentContact.id)
             .observe(viewLifecycleOwner, Observer { chatMessages ->
                 chatMessageAdapter.setData(chatMessages)
+                recyclerview.scrollToPosition(chatMessageAdapter.itemCount - 1)
             })
+
+
+
+        view.findViewById<RecyclerView>(R.id.chat_recycler_view).setOnClickListener {
+            Log.e("TESTINF", "AAAAAAAA")
+        }
+
+
 
 // -------------------------------------------------------------------------------------------------------- CLICK LISTENERS START
         binding.chatTextInput.setOnClickListener {
@@ -332,6 +348,7 @@ class ChatFragment : Fragment() {
                                     "$dirPath/$filename",
                                     getDuration(file)
                                 )
+                                Log.e("TESTINF", "PATH OUT ${voiceChatMessage!!.filePath}")
                                 if (voiceChatMessage != null) {
                                     appViewModel.addChatMessage(voiceChatMessage)
                                     snapshot.ref.removeValue()
@@ -466,7 +483,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun saveVoiceMessageToDatabases(downloadUri: Uri?) {
-        val filePath = "$dirPath$filename.mp3"
+        val filePath = "$dirPath/$filename.mp3"
         var timestamp: Long = Date().time
         val duration = durationVoiceMessage(timeWhenStopped)
 
@@ -483,6 +500,8 @@ class ChatFragment : Fragment() {
             filePath,
             duration
         )
+        Log.e("TESTINF", "PATH IN ${voiceChatMessage!!.filePath}")
+
         val firebaseVoiceMessage =
             FirebaseMessage(TYPE_VOICE_FIREBASE, downloadUri.toString(), timestamp)
 
@@ -523,5 +542,7 @@ class ChatFragment : Fragment() {
         return mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
 //        return Utils.formateMilliSeccond(durationStr!!.toLong())
     }
+
+
 
 }

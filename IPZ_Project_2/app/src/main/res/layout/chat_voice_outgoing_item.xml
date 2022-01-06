@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="10dp"
     app:cardBackgroundColor="@color/gray"
     app:cardCornerRadius="4dp"
     app:cardElevation="2dp"
@@ -32,12 +34,12 @@
             android:id="@+id/outgoingPlayImageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:padding="2dp"
             android:layout_marginRight="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:clickable="true"
+            android:padding="2dp"
             android:src="@drawable/ic_twotone_play_circle_24"
-            android:clickable="true"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
             android:id="@+id/outgoingProgressBar"
@@ -49,8 +51,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/outgoingPlayImageView"
             app:layout_constraintTop_toTopOf="parent" />
-
-
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

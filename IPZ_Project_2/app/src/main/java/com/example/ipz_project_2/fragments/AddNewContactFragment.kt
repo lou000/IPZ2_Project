@@ -22,10 +22,10 @@ import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
 import com.example.ipz_project_2.data.contact.ContactRepository
 import com.example.ipz_project_2.databinding.FragmentAddNewContactBinding
+import com.google.firebase.FirebaseError
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.lang.Exception
@@ -57,7 +57,6 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
     private lateinit var add_button: Button
 
 
-
     val appViewModel: AppViewModel by activityViewModels()
 //    {
 //        AppViewModelFactory(
@@ -83,23 +82,46 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
         navController = Navigation.findNavController(view)
         auth = Firebase.auth
         database = Firebase.database
-        mDatabase = database.getReference("user")
+        mDatabase = database.reference
         binding = FragmentAddNewContactBinding.bind(view)
         add_button = view.findViewById(R.id.add_new_contact_button)
-        add_button.setOnClickListener { inserContactToDatabase() }
+        add_button.setOnClickListener { insertContactToDatabase() }
 
         super.onViewCreated(view, savedInstanceState)
     }
 
+    class FirebaseContact(email: String, ip: String, phoneNumber: String, username: String)
 
-    private fun inserContactToDatabase() {
+    private fun insertContactToDatabase() {
         username = binding.usernameAddNewContact.text.toString().trim()
         phoneNumber = binding.phonenumberAddNewContact.text.toString().trim()
-        new_contact = Contact(username, phoneNumber,"P6hF03PgRLTeCiPe7qRNjWKwdfD2")
+        new_contact = Contact(username, phoneNumber, "P6hF03PgRLTeCiPe7qRNjWKwdfD2")
         val to_encode = username + phoneNumber
 
         val res = String(sha_256(to_encode).toByteArray())
-        Log.e("hash",res)
+        Log.e("hash", res)
+
+        mDatabase.child("user")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (ds: DataSnapshot in snapshot.children) {
+                            if (ds.child("phoneNumber").value == phoneNumber) {
+                                appViewModel.addContact(new_contact)
+                                findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+                                break
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            }
+            )
+
+
 //        mDatabase.child(res).get().addOnSuccessListener {
 //            Log.i("firebase", "Got value ${it.value}")
 //            if(it.value == null)
@@ -110,15 +132,16 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
 //            }
 //            else
 //            {
-        appViewModel.addContact(new_contact)
-                findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+//        appViewModel.addContact(new_contact)
+//        findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
 //            }
 
 //        }
 
 
-
     }
+
+
 }
 
 
