@@ -11,6 +11,7 @@ import kotlinx.parcelize.Parcelize
 data class Contact(
     var name: String,
     var phoneNumber: String,
+    var uid: String
 
 ):Parcelable {
     @PrimaryKey(autoGenerate = true)

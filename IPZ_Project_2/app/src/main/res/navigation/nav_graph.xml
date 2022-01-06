@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/register_fragment">
+    app:startDestination="@id/newMessageFragment">
 
     <fragment
         android:id="@+id/register_fragment"
@@ -14,15 +14,26 @@
             android:id="@+id/action_register_fragment_to_log_in_fragment"
             app:destination="@id/LogInFragment" />
         <action
-            android:id="@+id/action_register_fragment_to_fragment_contact_list"
-            app:destination="@id/contactListFragment" />
+            android:id="@+id/action_register_fragment_to_newMessageFragment"
+            app:destination="@id/newMessageFragment" />
 
     </fragment>
     <fragment
         android:id="@+id/LogInFragment"
         android:name="com.example.ipz_project_2.fragments.LogInFragment"
         android:label="Login"
-        tools:layout="@layout/fragment_log_in" />
+        tools:layout="@layout/fragment_log_in" >
+        <action
+            android:id="@+id/action_LogInFragment_to_register_fragment"
+            app:destination="@id/register_fragment" />
+        <action
+            android:id="@+id/action_LogInFragment_to_newMessageFragment"
+            app:destination="@id/newMessageFragment" />
+        <action
+            android:id="@+id/action_LogInFragment_to_otpcode"
+            app:destination="@id/otpcode">
+        </action>
+    </fragment>
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.example.ipz_project_2.fragments.ChatFragment"
@@ -39,11 +50,7 @@
         android:id="@+id/contactListFragment"
         android:name="com.example.ipz_project_2.fragments.ContactListFragment"
         android:label="fragment_contact_list"
-        tools:layout="@layout/fragment_contact_list" >
-        <action
-            android:id="@+id/action_contactListFragment_to_newMessageFragment"
-            app:destination="@id/newMessageFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_contact_list" />
     <fragment
         android:id="@+id/voiceRecordingsListFragment"
         android:name="com.example.ipz_project_2.fragments.VoiceRecordingsListFragment"
@@ -52,10 +59,14 @@
     <fragment
         android:id="@+id/newMessageFragment"
         android:name="com.example.ipz_project_2.fragments.NewMessageFragment"
-        android:label="New Message" >
+        android:label="Chats"
+        tools:layout="@layout/fragment_new_message">
         <action
             android:id="@+id/action_newMessageFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
+        <action
+            android:id="@+id/action_newMessageFragment_to_LogInFragment"
+            app:destination="@id/LogInFragment" />
     </fragment>
     <fragment
         android:id="@+id/addNewContactFragment"
@@ -66,13 +77,20 @@
             android:id="@+id/action_addNewContactFragment_to_newMessageFragment"
             app:destination="@id/newMessageFragment" />
     </fragment>
+
+
     <fragment
-        android:id="@+id/voiceRecordingsFragment"
-        android:name="com.example.ipz_project_2.fragments.VoiceRecordingsFragment"
-        android:label="fragment_voice_recordings"
-        tools:layout="@layout/fragment_voice_recordings" >
+        android:id="@+id/otpcode"
+        android:name="com.example.ipz_project_2.otpcode"
+        android:label="fragment_otpcode"
+        tools:layout="@layout/fragment_otpcode" >
+        <argument
+            android:name="hash"
+            app:argType="string"
+            android:defaultValue="0" />
         <action
-            android:id="@+id/action_voiceRecordingsFragment_to_voiceRecordingsListFragment"
-            app:destination="@id/voiceRecordingsListFragment" />
+            android:id="@+id/action_otpcode_to_contactListFragment"
+            app:destination="@id/contactListFragment" />
     </fragment>
+
 </navigation>

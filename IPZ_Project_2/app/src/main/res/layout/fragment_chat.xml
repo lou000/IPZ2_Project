@@ -2,43 +2,122 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_const_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".fragments.ChatFragment">
 
-    <EditText
-        android:id="@+id/editTextTextPersonName"
-        android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:ems="10"
-        android:hint="Enter Message"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton2"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageButton
-        android:id="@+id/imageButton2"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_round_send_message"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton3" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buttons_container_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <ImageButton
-        android:id="@+id/imageButton3"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_voice_message"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <LinearLayout
+            android:id="@+id/text_layout_chat"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/chatTextInput"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="Enter Message"
+                android:imeOptions="actionDone"
+                android:inputType="textPersonName"
+                android:text="" />
+
+            <ImageButton
+                android:id="@+id/sendButton_Chat"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:src="@drawable/ic_round_send_message" />
+
+            <ImageButton
+                android:id="@+id/recordButton_Chat"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_voice_message" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/voice_layout_chat"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp">
+
+            <Chronometer
+                android:id="@+id/recordTimer_Chat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                app:layout_constraintBottom_toBottomOf="@+id/btnPlay_Chat"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnPlay_Chat"
+                app:layout_constraintTop_toTopOf="@+id/voice_layout_chat" />
+
+            <ImageButton
+                android:id="@+id/btnDeleteRec_Chat"
+                android:layout_width="@dimen/btn_size_voice_layout"
+                android:layout_height="@dimen/btn_size_voice_layout"
+                android:background="@drawable/ic_ripple"
+                android:src="@drawable/ic_trashcan"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/voice_layout_chat" />
+
+            <ImageButton
+                android:id="@+id/btnRecord_Chat"
+                android:layout_width="@dimen/btn_size_voice_layout"
+                android:layout_height="@dimen/btn_size_voice_layout"
+                android:background="@drawable/ic_ripple"
+                android:src="@drawable/ic_record"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnDone_Chat"
+                app:layout_constraintStart_toEndOf="@+id/btnDeleteRec_Chat" />
+
+            <ImageButton
+                android:id="@+id/btnDone_Chat"
+                android:layout_width="@dimen/btn_size_voice_layout"
+                android:layout_height="@dimen/btn_size_voice_layout"
+                android:background="@drawable/ic_ripple"
+                android:src="@drawable/ic_done"
+                app:layout_constraintBottom_toBottomOf="@+id/voice_layout_chat"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnPlay_Chat"
+                android:layout_width="@dimen/btn_size_voice_layout"
+                android:layout_height="@dimen/btn_size_voice_layout"
+                android:background="@drawable/ic_ripple"
+                android:src="@drawable/ic_list"
+                app:layout_constraintStart_toStartOf="@+id/voice_layout_chat"
+                app:layout_constraintTop_toTopOf="@+id/voice_layout_chat" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="409dp"
-        android:layout_height="677dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName"
+        android:id="@+id/chat_recycler_view"
+        android:layout_width="413dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/buttons_container_layout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

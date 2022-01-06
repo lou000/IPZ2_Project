@@ -1,10 +1,13 @@
 package com.example.ipz_project_2.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,12 +15,26 @@ import com.example.ipz_project_2.data.contact.Contact
 import com.example.ipz_project_2.data.contact.ContactViewModel
 import com.example.ipz_project_2.data.contact.ContactsAdapter
 import com.example.ipz_project_2.R
-import java.util.ArrayList
+import com.example.ipz_project_2.data.AppDatabase
+import com.example.ipz_project_2.data.chatmessage.AppViewModel
+import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
+import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
+import com.example.ipz_project_2.data.contact.ContactRepository
+import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.*
 
-class NewMessageFragment : Fragment(R.layout.fragment_contact_list),
+class NewMessageFragment : Fragment(R.layout.fragment_new_message),
     ContactsAdapter.OnItemClickListener {
 
-    private lateinit var mContactViewModel: ContactViewModel
+    private val appViewModel: AppViewModel by activityViewModels()
+    {
+        AppViewModelFactory(
+            ChatMessageRepository(AppDatabase.getDatabase(requireContext()).chatMessageDao()),
+            ContactRepository(AppDatabase.getDatabase(requireContext()).contactsDao())
+        )
+    }
+
     private lateinit var contacts: ArrayList<Contact>
     private lateinit var mAdapter: ContactsAdapter
     private lateinit var recyclerview: RecyclerView
@@ -28,19 +45,22 @@ class NewMessageFragment : Fragment(R.layout.fragment_contact_list),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_contact_list, container, false)
+
+
+            val view = inflater.inflate(R.layout.fragment_new_message, container, false)
+
 
         setHasOptionsMenu(true)
         contacts = ArrayList()
         mAdapter = ContactsAdapter(contacts, this,findNavController())
-        recyclerview = view.findViewById(R.id.contacts_recycler_view)
+        recyclerview = view.findViewById(R.id.new_msg_recycler_view)
         recyclerview.apply {
             adapter = mAdapter
             layoutManager = LinearLayoutManager(context)
         }
 
-        mContactViewModel = ViewModelProvider(this).get(ContactViewModel::class.java)
-        mContactViewModel.readAllData.observe(viewLifecycleOwner, Observer { contacts ->
+
+        appViewModel.allContacts.observe(viewLifecycleOwner, Observer { contacts ->
             mAdapter.setData(contacts)
         })
         return view
@@ -48,6 +68,9 @@ class NewMessageFragment : Fragment(R.layout.fragment_contact_list),
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if(FirebaseAuth.getInstance().currentUser == null){
+            Navigation.findNavController(view).navigate(R.id.action_newMessageFragment_to_LogInFragment)
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -61,5 +84,7 @@ class NewMessageFragment : Fragment(R.layout.fragment_contact_list),
     override fun onItemClick(position: Int) {
 
     }
+
+
 
 }
