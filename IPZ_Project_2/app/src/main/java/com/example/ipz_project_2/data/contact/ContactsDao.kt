@@ -14,7 +14,7 @@ interface ContactsDao {
     fun getContactId(uid: String): Long
 
     @Insert
-    suspend fun insert(vararg contact: Contact)
+    suspend fun insert(contact: Contact)
 
     @Delete
     suspend fun delete(contact: Contact)

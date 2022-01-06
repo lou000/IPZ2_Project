@@ -11,8 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ipz_project_2.data.AppDatabase
 import com.example.ipz_project_2.R
-import com.example.ipz_project_2.data.voicemessage.VoiceMessage
-import com.example.ipz_project_2.data.voicemessage.VoiceMessageAdapter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
