@@ -32,10 +32,11 @@ fun hashMailPassword(mail: String, password: String): String {
 class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
     private lateinit var loginButton: Button
+    private lateinit var logoutButton: Button
     private lateinit var binding: FragmentLogInBinding
     private lateinit var navController: NavController
     private lateinit var auth: FirebaseAuth
-    lateinit var mailPasswordHash : String
+    lateinit var mailPasswordHash: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +60,8 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
         loginButton = binding.loginButtonRegisterLogIn
         loginButton.setOnClickListener(this)
+        logoutButton = binding.logOffButtonLogin
+        logoutButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -66,8 +69,14 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         when (v!!.id) {
 
             loginButton.id -> LoginUser()
+            logoutButton.id -> LogOutUser()
 
         }
+    }
+
+    fun LogOutUser() {
+        Log.d(TAG, "Log out button clicked")
+        FirebaseAuth.getInstance().signOut()
     }
 
     fun LoginUser() {
@@ -92,7 +101,6 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
     }
 
 
-
     private fun getOTP(mail: String, password: String) {
         Log.i("getOTP", " Called getOTP")
         val queue = Volley.newRequestQueue(this.activity)
@@ -100,13 +108,13 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
         val url = "http://zenek.pythonanywhere.com/token"
         val params = HashMap<String, String>()
-        mailPasswordHash =  hashMailPassword(mail,password)
+        mailPasswordHash = hashMailPassword(mail, password)
         params["hashed"] = mailPasswordHash
         params["mail"] = mail
-        Log.d("getOTP",params.toString())
+        Log.d("getOTP", params.toString())
         val jsonObject = JSONObject(params as Map<*, *>?)
-        Log.d("getOTP",jsonObject.toString())
-        val request = JsonObjectRequest(Request.Method.POST,url,jsonObject,
+        Log.d("getOTP", jsonObject.toString())
+        val request = JsonObjectRequest(Request.Method.POST, url, jsonObject,
             { response ->
                 // Process the json
                 try {
@@ -120,7 +128,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
                     ).show()
                 }
 
-            }, {response ->
+            }, { response ->
                 Log.e("getOTP", "Something went wrong,")
                 val body = String(response.networkResponse.data)
                 Log.d("getOTP", body)
