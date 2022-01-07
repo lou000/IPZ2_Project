@@ -96,7 +96,7 @@ class otpcode : Fragment(), View.OnClickListener {
     fun UpdateUI() {
         Log.d("OTPCode","UpdateUI")
 
-        navController.navigate(R.id.action_otpcode_to_contactListFragment)
+        navController.navigate(R.id.action_otpcode_to_newMessageFragment)
     }
 
     companion object {
