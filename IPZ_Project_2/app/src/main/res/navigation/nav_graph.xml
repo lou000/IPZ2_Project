@@ -22,7 +22,7 @@
         android:id="@+id/LogInFragment"
         android:name="com.example.ipz_project_2.fragments.LogInFragment"
         android:label="Login"
-        tools:layout="@layout/fragment_log_in" >
+        tools:layout="@layout/fragment_log_in">
         <action
             android:id="@+id/action_LogInFragment_to_register_fragment"
             app:destination="@id/register_fragment" />
@@ -31,8 +31,7 @@
             app:destination="@id/newMessageFragment" />
         <action
             android:id="@+id/action_LogInFragment_to_otpcode"
-            app:destination="@id/otpcode">
-        </action>
+            app:destination="@id/otpcode"></action>
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -66,6 +65,9 @@
             app:destination="@id/chatFragment" />
         <action
             android:id="@+id/action_newMessageFragment_to_LogInFragment"
+            app:destination="@id/LogInFragment" />
+        <action
+            android:id="@+id/action_newMessageFragment_to_LogInFragment2"
             app:destination="@id/LogInFragment" />
     </fragment>
     <fragment

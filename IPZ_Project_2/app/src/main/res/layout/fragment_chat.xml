@@ -101,8 +101,8 @@
                 android:id="@+id/btnPlay_Chat"
                 android:layout_width="@dimen/btn_size_voice_layout"
                 android:layout_height="@dimen/btn_size_voice_layout"
-                android:background="@drawable/ic_ripple"
-                android:src="@drawable/ic_list"
+
+                android:src="@drawable/ic_play"
                 app:layout_constraintStart_toStartOf="@+id/voice_layout_chat"
                 app:layout_constraintTop_toTopOf="@+id/voice_layout_chat" />
         </androidx.constraintlayout.widget.ConstraintLayout>

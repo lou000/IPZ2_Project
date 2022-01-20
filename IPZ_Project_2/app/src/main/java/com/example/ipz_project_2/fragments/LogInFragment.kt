@@ -21,6 +21,16 @@ import com.google.firebase.ktx.Firebase
 import com.android.volley.Response
 import org.json.JSONObject
 import com.example.ipz_project_2.fragments.LogInFragmentDirections
+import android.app.AlarmManager
+
+import android.app.PendingIntent
+import android.content.Context
+
+import android.content.Intent
+import kotlin.system.exitProcess
+import com.example.ipz_project_2.MainActivity
+import com.example.ipz_project_2.data.AppDatabase
+
 
 fun hashMailPassword(mail: String, password: String): String {
     val to_encode = mail + password
@@ -79,6 +89,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         FirebaseAuth.getInstance().signOut()
     }
 
+
     fun LoginUser() {
         val email: String = binding.emailEdittextLogIn.text.toString().trim()
         val password: String = binding.passwordEdittextLogIn.text.toString().trim()
@@ -88,6 +99,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
+//                    navController.navigate(LogInFragmentDirections.actionLogInFragmentToNewMessageFragment())
                     getOTP(email, password)
                 } else {
                     // If sign in fails, display a message to the user.

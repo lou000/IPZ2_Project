@@ -8,4 +8,10 @@
         android:title="@string/add_contact"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/log_off"
+        android:title="log_off"
+        app:showAsAction="ifRoom"/>
+
+
 </menu>

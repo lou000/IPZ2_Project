@@ -1,5 +1,6 @@
 package com.example.ipz_project_2.data.chatmessage
 
+import android.animation.ObjectAnimator
 import android.media.MediaPlayer
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ipz_project_2.R
@@ -16,8 +18,9 @@ private const val TYPE_TEXT_OUTGOING: Int = 1
 private const val TYPE_VOICE_INCOMING: Int = 2
 private const val TYPE_VOICE_OUTGOING: Int = 3
 
-class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
+class ChatMessageAdapter(private var chatMessages: MutableList<ChatMessage>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
 
 
     class TextIncomingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -52,6 +55,7 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
                     setDataSource(chatMessage.filePath)
                     prepare()
                 }
+
                 mediaPlayer.start()
             }
         }
@@ -65,6 +69,7 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
                 val position: Int = absoluteAdapterPosition
                 val mediaPlayer = MediaPlayer()
                 mediaPlayer.apply {
+                    Log.d("TESTINF",chatMessage.filePath.toString())
                     setDataSource(chatMessage.filePath)
                     prepare()
                 }
@@ -107,7 +112,7 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
 
     override fun getItemCount() = chatMessages.size
 
-    fun setData(chatMessagesList: List<ChatMessage>) {
+    fun setData(chatMessagesList: MutableList<ChatMessage>) {
         this.chatMessages = chatMessagesList
         notifyDataSetChanged()
     }
@@ -119,5 +124,14 @@ class ChatMessageAdapter(private var chatMessages: List<ChatMessage>) :
             2 -> TYPE_VOICE_INCOMING
             else -> TYPE_VOICE_OUTGOING
         }
+    }
+
+    fun removeAt(position: Int): Triple<Long, String?,Int> {
+        val id = chatMessages[position].id
+        val filePath = chatMessages[position].filePath
+        val type = chatMessages[position].type
+        chatMessages.removeAt(position)
+        notifyItemRemoved(position)
+        return Triple(id,filePath,type)
     }
 }

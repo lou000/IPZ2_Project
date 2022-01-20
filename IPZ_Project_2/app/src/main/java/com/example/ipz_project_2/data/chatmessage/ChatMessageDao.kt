@@ -6,10 +6,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ChatMessageDao {
     @Query("SELECT * FROM chat_message_table ORDER BY timestamp ASC")
-    fun getAll(): Flow<List<ChatMessage>>
+    fun getAll(): Flow<MutableList<ChatMessage>>
 
     @Query("SELECT * FROM chat_message_table WHERE idTo == :userUID OR idFrom == :userUID ORDER BY timestamp ASC")
-    fun getContactChat(userUID: Long): Flow<List<ChatMessage>>
+    fun getContactChat(userUID: Long): Flow<MutableList<ChatMessage>>
+
+    @Query("DELETE FROM chat_message_table WHERE id == :messageId")
+    suspend fun delMsg(messageId: Long)
 
     @Insert
     suspend fun insert(vararg chatMessage: ChatMessage)

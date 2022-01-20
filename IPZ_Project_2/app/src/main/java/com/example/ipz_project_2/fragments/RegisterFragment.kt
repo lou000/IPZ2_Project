@@ -1,5 +1,6 @@
 package com.example.ipz_project_2.fragments
 
+import RSAKotlinDemo3
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -29,6 +30,12 @@ import javax.xml.transform.ErrorListener
 import com.android.volley.VolleyError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
+import com.example.ipz_project_2.data.chatmessage.AppViewModel
+import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
+import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
+import com.example.ipz_project_2.data.contact.Contact
+import com.example.ipz_project_2.data.contact.ContactRepository
+import com.example.ipz_project_2.data.user.UserRepository
 import java.util.regex.Matcher
 import com.google.firebase.FirebaseError
 import com.google.firebase.database.*
@@ -41,9 +48,16 @@ fun sha_256(input: String): String {
 
 class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListener {
 
+    data class UserFB(
+        val username: String,
+        val email: String,
+        val phoneNumber: String,
+        val publicKey: String
+    )
 
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var registerButton: Button
+    private var hash: String? = null
 
 //    private lateinit var username: String
 //    private lateinit var email: String
@@ -58,7 +72,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     private lateinit var mDatabase: DatabaseReference
     private lateinit var currentUser: FirebaseUser
     private lateinit var ip: String
-//    private lateinit var new_user: User
+    private lateinit var new_user: UserFB
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +97,9 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+//        var sec: RSAKotlinDemo3 = RSAKotlinDemo3()
+//        Log.e("TESTINF","${sec.privateKey}   ${sec.publicKey}")
 
         binding = FragmentRegisterBinding.bind(view)
         navController = Navigation.findNavController(view)
@@ -139,9 +156,10 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         } ?: return false
     }
 
-    fun getUserHash(user: User): String {
-        val to_encode = user.username + user.phoneNumber
+    fun getUserHash(username: String, phoneNumber: String): String {
+        val to_encode = username + phoneNumber
         val res = String(sha_256(to_encode).toByteArray())
+        hash = res
         Log.i("hash", res)
         return res
     }
@@ -151,15 +169,24 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         val email: String = binding.emailRegister.text.toString().trim()
         val phoneNumber: String = binding.phoneRegister.text.toString().trim()
         val password: String = binding.passwordRegister.text.toString().trim()
+        val newUserHash: String = getUserHash(username, phoneNumber)
+
+        new_user = UserFB(
+            username,
+            email,
+            phoneNumber,
+            "publicKey"
+        )  //TODO IMPLEMENT ENCRYPTION METHOD TO GET KEYS
         if (this.isValidPassword(password)) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener() { it ->
                     val user = auth.currentUser
                         ?: throw Exception("Firebase connection could not be established")
-                    val usr = User(username, email, phoneNumber, ip)
+//                    var usr = User(username, email, phoneNumber, "")
+//                    usr.hash = getUserHash(usr)
                     if (!it.isSuccessful) {
                         Log.d("Register", "User could not be registered")
-                        mDatabase.orderByKey().equalTo(getUserHash(usr))
+                        mDatabase.orderByKey().equalTo(newUserHash)
                             .addValueEventListener(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     if (dataSnapshot.exists()) {
@@ -179,22 +206,60 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
                     } else {
                         //user doesn't exist, lets register him
                         Log.d("Register", "createUserWithEmail:success")
-                        updateUI(user, usr)
+
+                        updateUI(user, new_user)
                     }
                 }
         } else {
-            Toast.makeText(context, "Password does not match standard",
-                Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context, "Password does not match standard",
+                Toast.LENGTH_SHORT
+            ).show()
             Log.d("Register", "Password does not match standard")
         }
     }
 
 
-    private fun updateUI(user: FirebaseUser?, new_user: User) {
+    private fun updateUI(user: FirebaseUser?, new_user: UserFB) {
         //TODO: info about login/registration success
-        val viewModel: FirebaseUserViewModel by activityViewModels()
-        viewModel.selectItem(user)
-        mDatabase.child(getUserHash(new_user)).setValue(new_user)
+
+        val username: String = binding.usernameRegister.text.toString().trim()
+        val phoneNumber: String = binding.phoneRegister.text.toString().trim()
+        val hash = getUserHash(username, phoneNumber)
+
+//        val viewModel: FirebaseUserViewModel by activityViewModels()
+//        viewModel.selectItem(user)
+        Log.e("TESTINF", "MY ID ${FirebaseAuth.getInstance().currentUser!!.uid}")
+
+
+        val appViewModel: AppViewModel by activityViewModels()
+        {
+            AppViewModelFactory(
+                ChatMessageRepository(
+                    requireActivity().application
+                ),
+                ContactRepository(
+                    requireActivity().application
+                ),
+                UserRepository(
+                    requireActivity().application
+                )
+            )
+        }
+
+        appViewModel.addUser(User(FirebaseAuth.getInstance().currentUser!!.uid,
+            binding.phoneRegister.text.toString().trim(),
+            binding.emailRegister.text.toString().trim(),
+            hash,"privateKey"))
+
+//        appViewModel.addContact(
+//            Contact(
+//                FirebaseAuth.getInstance().currentUser!!.uid,
+//                binding.phoneRegister.text.toString().trim(),
+//                hash
+//            )
+//        )
+        mDatabase.child(hash).setValue(new_user)
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
 }
