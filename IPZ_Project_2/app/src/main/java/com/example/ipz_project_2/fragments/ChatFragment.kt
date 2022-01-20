@@ -1,6 +1,7 @@
 package com.example.ipz_project_2.fragments
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
@@ -32,8 +33,20 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 import android.media.MediaMetadataRetriever
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
+import com.example.ipz_project_2.SwipeToDeleteCallback
+import com.example.ipz_project_2.User
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 
-
+const val ANDROID_PERMISSION_REQUEST_CODE__RECORD_AUDIO = 200
 private const val TYPE_TEXT_INCOMING: Int = 0
 private const val TYPE_TEXT_OUTGOING: Int = 1
 private const val TYPE_VOICE_INCOMING: Int = 2
@@ -49,19 +62,23 @@ class ChatFragment : Fragment() {
         var type: Int,
         var message: String,
         var timestamp: Long
-    ) {constructor(): this(-1,"",0L) }
+    ) {
+        constructor() : this(-1, "", 0L)
+    }
 
 
     private var _binding: FragmentChatBinding? = null
 
-    // This property is only valid between onCreateView and onDestroyView.
+
     private val binding get() = _binding!!
+    private var permissions =
+        arrayOf(android.Manifest.permission.RECORD_AUDIO)
+    private var permissionGrantedRecording = false
 
-
-    private lateinit var chatMessages: List<ChatMessage>
+    private lateinit var chatMessages: MutableList<ChatMessage>
     private lateinit var chatMessageAdapter: ChatMessageAdapter
     private lateinit var recyclerview: RecyclerView
-
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private var isRecording = false
     private var isRecorded = false
     private var isPaused = false
@@ -71,6 +88,9 @@ class ChatFragment : Fragment() {
     private var filename = ""
     private lateinit var timer: Chronometer
     private val args by navArgs<ChatFragmentArgs>()
+    private var userUID: String? = null
+    private lateinit var currentUser: User
+    private lateinit var childListener: ChildEventListener
 
     val appViewModel: AppViewModel by activityViewModels()
 
@@ -85,6 +105,22 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+
+        appViewModel.user(FirebaseAuth.getInstance().currentUser!!.uid)
+            .observe(viewLifecycleOwner, Observer { usr ->
+                if (usr != null) {
+                    currentUser = usr
+                    getMessages()
+
+                }
+            })
+
+        appViewModel.getUserMessages(args.currentContact.id)
+            .observe(viewLifecycleOwner, Observer { chatMessages ->
+                chatMessageAdapter.setData(chatMessages)
+                recyclerview.scrollToPosition(chatMessageAdapter.itemCount - 1)
+            })
+
         _binding = FragmentChatBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -93,16 +129,28 @@ class ChatFragment : Fragment() {
 
         timer = binding.recordTimerChat
 
-        chatMessages = listOf()
+        chatMessages = mutableListOf()
         chatMessageAdapter = ChatMessageAdapter(chatMessages)
 
         recyclerview = binding.chatRecyclerView
         recyclerview.apply {
             adapter = chatMessageAdapter
             layoutManager = LinearLayoutManager(context)
+
         }
-
-
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = recyclerview.adapter as ChatMessageAdapter
+                val data = adapter.removeAt(viewHolder.adapterPosition)
+                appViewModel.delMsg(data.first)
+                if (data.third == 2 || data.third == 3) {
+                    val file = File(data.second)
+                    file.delete()
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recyclerview)
 
         appViewModel.getUserMessages(args.currentContact.id)
             .observe(viewLifecycleOwner, Observer { chatMessages ->
@@ -113,9 +161,7 @@ class ChatFragment : Fragment() {
 
 
         view.findViewById<RecyclerView>(R.id.chat_recycler_view).setOnClickListener {
-            Log.e("TESTINF", "AAAAAAAA")
         }
-
 
 
 // -------------------------------------------------------------------------------------------------------- CLICK LISTENERS START
@@ -157,12 +203,16 @@ class ChatFragment : Fragment() {
 
         binding.btnPlayChat.setOnClickListener {
             val mediaPlayer = MediaPlayer()
-            val filePath = "$dirPath$filename.mp3"
+            val filePath = "$dirPath/$filename.mp3"
             mediaPlayer.apply {
                 setDataSource(filePath)
                 prepare()
             }
+            binding
+
             mediaPlayer.start()
+
+
         }
 
         binding.btnDoneChat.setOnClickListener {
@@ -179,7 +229,7 @@ class ChatFragment : Fragment() {
         }
 
         binding.btnDeleteRecChat.setOnClickListener {
-            File("$dirPath$filename.mp3").delete()
+            File("$dirPath/$filename.mp3").delete()
             timeWhenStopped = 0;
         }
 
@@ -196,11 +246,70 @@ class ChatFragment : Fragment() {
         mediaPlayer.start()
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { permissionGrantedRecording ->
+                if (permissionGrantedRecording) {
+                    Log.d(
+                        "PermissionRecord",
+                        "Permisison is (if true)" + permissionGrantedRecording
+                    )
+
+                } else {
+                    Log.d(
+                        "PermissionRecord",
+                        "Permisison is (if false) request shoul lauch " + permissionGrantedRecording
+                    )
+                    Toast.makeText(
+                        activity,
+                        "The app was not allowed to read your contacts",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+        when {
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    permissions[0]
+                )
+            } == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+            }
+            activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    it,
+                    permissions[0]
+                )
+            } == true -> {
+                view?.let {
+                    Snackbar.make(
+                        it,
+                        getString(R.string.permission_required),
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction("DISMISS", View.OnClickListener {
+                        // executed when DISMISS is clicked
+                        System.out.println("Snackbar Set Action - OnClick.")
+                    }).show()
+                }
+
+            }
+            else -> {
+                requestPermissionLauncher.launch(permissions[0])
+            }
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        getMessages()
+            //checkPermission()
+        //        getMessages()
     }
 
     override fun onDestroyView() {
@@ -238,7 +347,7 @@ class ChatFragment : Fragment() {
                     args.currentContact.id,
                     null,
                     filename,
-                    "$dirPath$filename.mp3",
+                    "$dirPath/$filename.mp3",
                     durationVoiceMessage(timeWhenStopped)
                 )
             }
@@ -291,7 +400,8 @@ class ChatFragment : Fragment() {
         val firebaseMessage =
             FirebaseMessage(TYPE_TEXT_FIREBASE, binding.chatTextInput.text.toString(), timestamp)
         val referance = FirebaseDatabase.getInstance()
-            .getReference("/chats/${args.currentContact.uid}/${Firebase.auth.currentUser!!.uid}")
+//            .getReference("/chats/${args.currentContact.uid}/${Firebase.auth.currentUser!!.uid}")
+            .getReference("/chats/${args.currentContact.uid}/${currentUser.hash}")
             .push()
 
         referance.setValue(firebaseMessage)
@@ -312,11 +422,10 @@ class ChatFragment : Fragment() {
     private fun getMessages() {
         val reference =
             FirebaseDatabase.getInstance()
-                .getReference("/chats/${Firebase.auth.currentUser!!.uid}/${args.currentContact.uid}")
+                .getReference("/chats/${currentUser.hash}/${args.currentContact.uid}")
 
-        reference.addChildEventListener(object : ChildEventListener {
+        childListener = reference.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-
                 val firebaseMessage = snapshot.getValue(FirebaseMessage::class.java)
 
                 if (firebaseMessage != null) {
@@ -348,10 +457,10 @@ class ChatFragment : Fragment() {
                                     "$dirPath/$filename",
                                     getDuration(file)
                                 )
-                                Log.e("TESTINF", "PATH OUT ${voiceChatMessage!!.filePath}")
                                 if (voiceChatMessage != null) {
                                     appViewModel.addChatMessage(voiceChatMessage)
                                     snapshot.ref.removeValue()
+                                    reference.delete()  //TODO ON SUCCESS LISTENER
                                 }
                             }.addOnFailureListener {
                                 // Handle any errors //TODO
@@ -407,7 +516,7 @@ class ChatFragment : Fragment() {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile("$dirPath$filename.mp3")
+            setOutputFile("$dirPath/$filename.mp3")
             prepare()
             start()
         }
@@ -449,11 +558,12 @@ class ChatFragment : Fragment() {
 
     private fun sendRecording() {
 
-        val filePath = "$dirPath$filename.mp3"
+        val filePath = "$dirPath/$filename.mp3"
         val storage = Firebase.storage
         val storageRef = storage.reference
         var fileToUpload = Uri.fromFile(File(filePath))
-        val audioRef = storageRef.child("audios/${fileToUpload.lastPathSegment}")
+        val audioRef =
+            storageRef.child("audios/${args.currentContact.uid}/${fileToUpload.lastPathSegment}")
         val uploadTask = audioRef.putFile(fileToUpload)
 
         uploadTask.addOnFailureListener {
@@ -500,13 +610,12 @@ class ChatFragment : Fragment() {
             filePath,
             duration
         )
-        Log.e("TESTINF", "PATH IN ${voiceChatMessage!!.filePath}")
 
         val firebaseVoiceMessage =
             FirebaseMessage(TYPE_VOICE_FIREBASE, downloadUri.toString(), timestamp)
 
         val reference = FirebaseDatabase.getInstance()
-            .getReference("/chats/${args.currentContact.uid}/${Firebase.auth.currentUser!!.uid}")
+            .getReference("/chats/${args.currentContact.uid}/${currentUser.hash}")
             .push()
 
         reference.setValue(firebaseVoiceMessage)
@@ -527,13 +636,17 @@ class ChatFragment : Fragment() {
         calendar.timeInMillis = timeStamp
         val h = calendar.get(Calendar.HOUR_OF_DAY)
         val m = calendar.get(Calendar.MINUTE)
-        return "$h:$m"
+        val hStr = if (h < 10) "0$h" else "$h"
+        val mStr = if (m < 10) "0$m" else "$m"
+        return "$hStr:$mStr"
     }
 
     private fun durationVoiceMessage(recordingTime: Long): String {
         val minutes = recordingTime / 1000 / 60
         val seconds = recordingTime / 1000 % 60
-        return "$minutes:$seconds"
+        val mStr = if (minutes < 10) "0$minutes" else "$minutes"
+        val sStr = if (seconds < 10) "0$seconds" else "$seconds"
+        return "$mStr:$sStr"
     }
 
     private fun getDuration(file: File): String? {
@@ -543,6 +656,51 @@ class ChatFragment : Fragment() {
 //        return Utils.formateMilliSeccond(durationStr!!.toLong())
     }
 
+    private fun checkPermission(): Boolean {
+        when {
+            context?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    permissions[0]
+                )
+            } == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+                return true
+            }
+            activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    it,
+                    permissions[0]
+                )
+            } == true -> {
+                view?.let {
+                    Snackbar.make(
+                        it,
+                        getString(R.string.permission_required),
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction("DISMISS", View.OnClickListener {
+                        // executed when DISMISS is clicked
+                        System.out.println("Snackbar Set Action - OnClick.")
+                    }).show()
+                }
+                return false
+            }
+            else -> {
+                requestPermissionLauncher.launch(permissions[0])
+                return false
+            }
+        }
+    }
 
+
+    override fun onPause() {
+        super.onPause()
+
+        val reference =
+            FirebaseDatabase.getInstance()
+                .getReference("/chats/${currentUser.hash}/${args.currentContact.uid}")
+
+        reference.removeEventListener(childListener)
+    }
 
 }

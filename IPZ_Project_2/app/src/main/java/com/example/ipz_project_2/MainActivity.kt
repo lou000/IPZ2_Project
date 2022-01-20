@@ -30,11 +30,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = Firebase.auth
-        var currentUser = auth.currentUser
-        viewModel.selectedItem.observe(this, Observer { user ->
-            currentUser = user
-        })
+
+
+
+
+//        auth = Firebase.auth
+//        var currentUser = auth.currentUser
+//        viewModel.selectedItem.observe(this, Observer { user ->
+//            currentUser = user
+//        })
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val navFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -45,18 +49,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<BottomNavigationView>(R.id.bottom_nav_bar).setupWithNavController(navController)
         setSupportActionBar(toolbar)
         appBarConfiguration = AppBarConfiguration(navController.graph)
-//        appBarConfiguration = AppBarConfiguration(setOf(R.id.login_fragment, R.id.register_fragment)) //TODO Usunac back button na wybranyh fragmentach??
         setupActionBarWithNavController(navController,appBarConfiguration)
-//        NavigationUI.setupWithNavController(navBar, navController)
-
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.menu_new_message_fragment,menu)
-//        menuInflater.inflate(R.menu.menu_contact_llist_fragment,menu)
-//        return super.onCreateOptionsMenu(menu)
         return true
     }
 
