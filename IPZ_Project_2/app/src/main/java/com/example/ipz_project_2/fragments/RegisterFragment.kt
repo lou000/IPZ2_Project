@@ -1,6 +1,6 @@
 package com.example.ipz_project_2.fragments
 
-import RSAKotlinDemo3
+//import RSAKotlinDemo3
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -149,7 +149,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 //        .{4,}             # anything, at least six places though
         password?.let {
             val passwordPattern =
-                "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{4,}$"
+                ".{6,}"
             val passwordMatcher = Regex(passwordPattern)
 
             return passwordMatcher.find(password) != null
