@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
-    @Query("SELECT * FROM user") //TODO: OFFSET TO IGNORE FIRST CONTACT -  MAIN USER
+    @Query("SELECT * FROM user")
     fun getAll(): Flow<User>
 
-    @Query("SELECT * FROM user WHERE username == :name") //TODO: OFFSET TO IGNORE FIRST CONTACT -  MAIN USER
+    @Query("SELECT * FROM user WHERE userUid == :name")
     fun getUser(name: String): Flow<User>
 
-    @Query("SELECT * FROM user WHERE username == :name") //TODO: OFFSET TO IGNORE FIRST CONTACT -  MAIN USER
+    @Query("SELECT * FROM user WHERE userUid == :name")
     fun getUser2(name: String): User
 
     @Insert

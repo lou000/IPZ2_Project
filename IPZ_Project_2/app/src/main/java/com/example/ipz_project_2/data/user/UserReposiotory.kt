@@ -14,18 +14,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.coroutines.CoroutineContext
 
 
-class UserRepository(application: Application) {
+class UserRepository(private val userDao: UserDao) {
 
-    private val db: AppDatabase = AppDatabase.getDatabase(application)
 
-    fun getUser(name: String): Flow<User> = db.userDao().getUser(name)
 
-    fun getUser2(name: String): User = db.userDao().getUser2(name)
+    fun getUser(name: String): Flow<User> = userDao.getUser(name)
+
+    fun getUser2(name: String): User = userDao.getUser2(name)
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun addUser(user: User) {
-        db.userDao().insert(user)
+        userDao.insert(user)
     }
 
 }

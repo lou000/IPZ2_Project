@@ -45,6 +45,8 @@ import com.example.ipz_project_2.SwipeToDeleteCallback
 import com.example.ipz_project_2.User
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 
 const val ANDROID_PERMISSION_REQUEST_CODE__RECORD_AUDIO = 200
 private const val TYPE_TEXT_INCOMING: Int = 0
@@ -89,7 +91,7 @@ class ChatFragment : Fragment() {
     private lateinit var timer: Chronometer
     private val args by navArgs<ChatFragmentArgs>()
     private var userUID: String? = null
-    private lateinit var currentUser: User
+//    private var currentUser: User? = null
     private lateinit var childListener: ChildEventListener
 
     val appViewModel: AppViewModel by activityViewModels()
@@ -105,21 +107,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-
-        appViewModel.user(FirebaseAuth.getInstance().currentUser!!.uid)
-            .observe(viewLifecycleOwner, Observer { usr ->
-                if (usr != null) {
-                    currentUser = usr
-                    getMessages()
-
-                }
-            })
-
-        appViewModel.getUserMessages(args.currentContact.id)
-            .observe(viewLifecycleOwner, Observer { chatMessages ->
-                chatMessageAdapter.setData(chatMessages)
-                recyclerview.scrollToPosition(chatMessageAdapter.itemCount - 1)
-            })
+        getMessages()
 
         _binding = FragmentChatBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -152,16 +140,11 @@ class ChatFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(recyclerview)
 
-        appViewModel.getUserMessages(args.currentContact.id)
+        appViewModel.getUserMessages(args.userID,args.currentContact.contactId)
             .observe(viewLifecycleOwner, Observer { chatMessages ->
                 chatMessageAdapter.setData(chatMessages)
                 recyclerview.scrollToPosition(chatMessageAdapter.itemCount - 1)
             })
-
-
-
-        view.findViewById<RecyclerView>(R.id.chat_recycler_view).setOnClickListener {
-        }
 
 
 // -------------------------------------------------------------------------------------------------------- CLICK LISTENERS START
@@ -180,6 +163,7 @@ class ChatFragment : Fragment() {
             inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
             binding.chatTextInput.setText("")
             binding.chatTextInput.clearFocus()
+            timeWhenStopped = 0
         }
 
         binding.chatConstLayout.setOnClickListener {
@@ -217,9 +201,10 @@ class ChatFragment : Fragment() {
 
         binding.btnDoneChat.setOnClickListener {
             if (isRecorded) {
-                sendRecording()
+                sendRecording(timeWhenStopped)
                 binding.btnDoneChat.setImageResource(R.drawable.ic_done)
                 isRecorded = false
+                timeWhenStopped = 0
                 hideButtons()
             } else {
                 stopRecording()
@@ -229,8 +214,24 @@ class ChatFragment : Fragment() {
         }
 
         binding.btnDeleteRecChat.setOnClickListener {
-            File("$dirPath/$filename.mp3").delete()
-            timeWhenStopped = 0;
+
+            if (isRecorded) {
+                File("$dirPath/$filename.mp3").delete()
+                binding.btnDoneChat.setImageResource(R.drawable.ic_done)
+                isRecorded = false
+                timeWhenStopped = 0
+                hideButtons()
+            } else {
+                stopRecording()
+                File("$dirPath/$filename.mp3").delete()
+                isRecorded = false
+                timeWhenStopped = 0
+                hideButtons()
+            }
+
+
+
+
         }
 
 // -------------------------------------------------------------------------------------------------------- CLICK LISTENERS END
@@ -308,8 +309,7 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-            //checkPermission()
-        //        getMessages()
+
     }
 
     override fun onDestroyView() {
@@ -322,6 +322,8 @@ class ChatFragment : Fragment() {
 
     private fun createChatMessageOutgoing(type: Int, timestamp: Long): ChatMessage? {
 
+        val currentUserUID = FirebaseAuth.getInstance().currentUser?.uid
+
         val time = getTimeFromTimestamp(timestamp)
         when (type) {
             TYPE_TEXT_OUTGOING -> {
@@ -331,8 +333,8 @@ class ChatFragment : Fragment() {
                     textMsg,
                     timestamp,
                     time,
-                    args.currentContact.id,
-                    null,
+                    args.currentContact.contactId,
+                    args.userID,
                     null,
                     null,
                     null
@@ -344,8 +346,8 @@ class ChatFragment : Fragment() {
                     "",
                     timestamp,
                     time,
-                    args.currentContact.id,
-                    null,
+                    args.currentContact.contactId,
+                    args.userID,
                     filename,
                     "$dirPath/$filename.mp3",
                     durationVoiceMessage(timeWhenStopped)
@@ -367,8 +369,8 @@ class ChatFragment : Fragment() {
                     firebaseMessage.message,
                     firebaseMessage.timestamp,
                     getTimeFromTimestamp(firebaseMessage.timestamp),
-                    null,
                     idFrom,
+                    args.userID,
                     null,
                     null,
                     null
@@ -382,8 +384,8 @@ class ChatFragment : Fragment() {
                     firebaseMessage.message,
                     firebaseMessage.timestamp,
                     getTimeFromTimestamp(firebaseMessage.timestamp),
-                    null,
                     idFrom,
+                    args.userID,
                     filename,
                     filePath,
                     duration
@@ -400,8 +402,7 @@ class ChatFragment : Fragment() {
         val firebaseMessage =
             FirebaseMessage(TYPE_TEXT_FIREBASE, binding.chatTextInput.text.toString(), timestamp)
         val referance = FirebaseDatabase.getInstance()
-//            .getReference("/chats/${args.currentContact.uid}/${Firebase.auth.currentUser!!.uid}")
-            .getReference("/chats/${args.currentContact.uid}/${currentUser.hash}")
+            .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")
             .push()
 
         referance.setValue(firebaseMessage)
@@ -422,7 +423,7 @@ class ChatFragment : Fragment() {
     private fun getMessages() {
         val reference =
             FirebaseDatabase.getInstance()
-                .getReference("/chats/${currentUser.hash}/${args.currentContact.uid}")
+                .getReference("/chats/${FirebaseAuth.getInstance().currentUser?.uid}/${args.currentContact.contactUid}")
 
         childListener = reference.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -432,7 +433,7 @@ class ChatFragment : Fragment() {
                     when (firebaseMessage.type) {
                         TYPE_TEXT_FIREBASE -> {
                             val textChatMessage =
-                                createChatMessageIncoming(firebaseMessage, args.currentContact.id)
+                                createChatMessageIncoming(firebaseMessage, args.currentContact.contactId)
                             if (textChatMessage != null) {
                                 appViewModel.addChatMessage(textChatMessage)
                                 snapshot.ref.removeValue()
@@ -447,12 +448,12 @@ class ChatFragment : Fragment() {
                             dirPath =
                                 requireActivity().getExternalFilesDir("/")?.absolutePath.toString()
                             val filename =
-                                "in_${args.currentContact.uid}_${firebaseMessage.timestamp}.mp3"
+                                "in_${args.currentContact.contactUid}_${firebaseMessage.timestamp}.mp3"
                             val file: File = File(dirPath, filename)
                             reference.getFile(file).addOnSuccessListener {
                                 val voiceChatMessage = createChatMessageIncoming(
                                     firebaseMessage,
-                                    args.currentContact.id,
+                                    args.currentContact.contactId,
                                     filename,
                                     "$dirPath/$filename",
                                     getDuration(file)
@@ -460,7 +461,7 @@ class ChatFragment : Fragment() {
                                 if (voiceChatMessage != null) {
                                     appViewModel.addChatMessage(voiceChatMessage)
                                     snapshot.ref.removeValue()
-                                    reference.delete()  //TODO ON SUCCESS LISTENER
+                                    reference.delete()
                                 }
                             }.addOnFailureListener {
                                 // Handle any errors //TODO
@@ -556,14 +557,14 @@ class ChatFragment : Fragment() {
     }
 
 
-    private fun sendRecording() {
+    private fun sendRecording(timer: Long) {
 
         val filePath = "$dirPath/$filename.mp3"
         val storage = Firebase.storage
         val storageRef = storage.reference
         var fileToUpload = Uri.fromFile(File(filePath))
         val audioRef =
-            storageRef.child("audios/${args.currentContact.uid}/${fileToUpload.lastPathSegment}")
+            storageRef.child("audios/${args.currentContact.contactUid}/${fileToUpload.lastPathSegment}")
         val uploadTask = audioRef.putFile(fileToUpload)
 
         uploadTask.addOnFailureListener {
@@ -582,7 +583,7 @@ class ChatFragment : Fragment() {
         }.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val downloadUri = task.result
-                saveVoiceMessageToDatabases(downloadUri)   //TODO separate thread??
+                saveVoiceMessageToDatabases(downloadUri,timer)   //TODO separate thread??
             } else {
                 // Handle failures
                 // ...
@@ -592,10 +593,11 @@ class ChatFragment : Fragment() {
 //            .format(DateTimeFormatter.ofPattern("HH:mm"))
     }
 
-    private fun saveVoiceMessageToDatabases(downloadUri: Uri?) {
+    private fun saveVoiceMessageToDatabases(downloadUri: Uri?,timer: Long) {
         val filePath = "$dirPath/$filename.mp3"
         var timestamp: Long = Date().time
-        val duration = durationVoiceMessage(timeWhenStopped)
+
+        val duration = durationVoiceMessage(timer)
 
         createChatMessageOutgoing(TYPE_VOICE_OUTGOING, timestamp)
 
@@ -604,8 +606,8 @@ class ChatFragment : Fragment() {
             "",
             timestamp,
             getTimeFromTimestamp(timestamp),
-            args.currentContact.id,
-            null,
+            args.currentContact.contactId,
+            args.userID,
             filename,
             filePath,
             duration
@@ -615,7 +617,7 @@ class ChatFragment : Fragment() {
             FirebaseMessage(TYPE_VOICE_FIREBASE, downloadUri.toString(), timestamp)
 
         val reference = FirebaseDatabase.getInstance()
-            .getReference("/chats/${args.currentContact.uid}/${currentUser.hash}")
+            .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")
             .push()
 
         reference.setValue(firebaseVoiceMessage)
@@ -627,7 +629,7 @@ class ChatFragment : Fragment() {
             }
         appViewModel.addChatMessage(voiceChatMessage)
 
-        timeWhenStopped = 0;
+//        timeWhenStopped = 0;
     }
 
     private fun getTimeFromTimestamp(timeStamp: Long): String {
@@ -652,7 +654,9 @@ class ChatFragment : Fragment() {
     private fun getDuration(file: File): String? {
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(file.absolutePath)
-        return mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        return mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.let {
+            durationVoiceMessage(it.toLong())
+        }
 //        return Utils.formateMilliSeccond(durationStr!!.toLong())
     }
 
@@ -698,7 +702,7 @@ class ChatFragment : Fragment() {
 
         val reference =
             FirebaseDatabase.getInstance()
-                .getReference("/chats/${currentUser.hash}/${args.currentContact.uid}")
+                .getReference("/chats/${FirebaseAuth.getInstance().currentUser?.uid}/${args.currentContact.contactUid}")
 
         reference.removeEventListener(childListener)
     }

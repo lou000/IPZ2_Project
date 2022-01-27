@@ -3,7 +3,6 @@ package com.example.ipz_project_2.data.contact
 import android.os.Parcelable
 import androidx.room.*
 import com.example.ipz_project_2.User
-import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -11,27 +10,27 @@ import kotlinx.parcelize.Parcelize
 data class Contact(
     var name: String,
     var phoneNumber: String,
-    var uid: String,
+    var contactUid: String,
 
 
 ):Parcelable {
     @PrimaryKey(autoGenerate = true)
-    var id: Long = 0L
+    var contactId: Long = 0L
 }
 
-@Entity(primaryKeys = ["username", "uid"])
+@Entity(primaryKeys = ["userId", "contactId"])
 data class UserContactsCrossRef(
-    val username: String,
-    val uid: String
+    val userId: Long,
+    val contactId: Long
 )
 
 
 data class UserWithContacts(
     @Embedded val user: User,
     @Relation(
-        parentColumn = "username",
-        entityColumn = "uid",
+        parentColumn = "userId",
+        entityColumn = "contactId",
         associateBy = Junction(UserContactsCrossRef::class)
     )
-    val contacts: List<Contact>
+    val contacts: MutableList<Contact>
 )

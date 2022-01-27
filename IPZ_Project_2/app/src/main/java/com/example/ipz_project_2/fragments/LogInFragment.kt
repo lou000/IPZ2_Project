@@ -27,6 +27,7 @@ import android.app.PendingIntent
 import android.content.Context
 
 import android.content.Intent
+import androidx.navigation.fragment.findNavController
 import kotlin.system.exitProcess
 import com.example.ipz_project_2.MainActivity
 import com.example.ipz_project_2.data.AppDatabase
@@ -42,7 +43,7 @@ fun hashMailPassword(mail: String, password: String): String {
 class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
     private lateinit var loginButton: Button
-    private lateinit var logoutButton: Button
+//    private lateinit var logoutButton: Button
     private lateinit var binding: FragmentLogInBinding
     private lateinit var navController: NavController
     private lateinit var auth: FirebaseAuth
@@ -70,8 +71,9 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
         loginButton = binding.loginButtonRegisterLogIn
         loginButton.setOnClickListener(this)
-        logoutButton = binding.logOffButtonLogin
-        logoutButton.setOnClickListener(this)
+        binding.backToRegisterSpan.setOnClickListener(this)
+//        logoutButton = binding.logOffButtonLogin
+//        logoutButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
@@ -79,7 +81,8 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         when (v!!.id) {
 
             loginButton.id -> LoginUser()
-            logoutButton.id -> LogOutUser()
+            binding.backToRegisterSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_register_fragment)
+//            logoutButton.id -> LogOutUser()
 
         }
     }

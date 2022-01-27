@@ -9,10 +9,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ipz_project_2.R
+import com.example.ipz_project_2.User
 import com.example.ipz_project_2.fragments.NewMessageFragmentDirections
 
 
 class ContactsAdapter(
+    private var userID: Long,
     private var contacts: List<Contact>,
     val listener: OnItemClickListener,
     val navController: NavController
@@ -51,7 +53,7 @@ class ContactsAdapter(
             var contact: Contact = contacts[position]
             holder.username.text = contact.name
             holder.contactListItem.setOnClickListener{
-                val action = NewMessageFragmentDirections.actionNewMessageFragmentToChatFragment(contact,label = contact.name)
+                val action = NewMessageFragmentDirections.actionNewMessageFragmentToChatFragment(userID,contact,label = contact.name)
                 navController.navigate(action)
             }
         }}
