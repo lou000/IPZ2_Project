@@ -57,6 +57,7 @@ class otpcode : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v!!.id) {
             confirmButton.id -> verifyOTP()
+            codeText.id -> codeText.hint = ""
 
         }
     }
@@ -83,6 +84,7 @@ class otpcode : Fragment(), View.OnClickListener {
 
             }, {response->
                 Log.e("getOTP", "Something went wrong,")
+                Toast.makeText(requireActivity(), "Something went wrong, Try again", Toast.LENGTH_LONG).show();
                 val body = String(response.networkResponse.data)
                 Log.d("getOTP", body)
                 Toast.makeText(

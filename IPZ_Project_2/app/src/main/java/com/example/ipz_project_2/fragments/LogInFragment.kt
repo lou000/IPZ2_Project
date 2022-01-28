@@ -72,6 +72,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         loginButton = binding.loginButtonRegisterLogIn
         loginButton.setOnClickListener(this)
         binding.backToRegisterSpan.setOnClickListener(this)
+        binding.forgotPasswordSpan.setOnClickListener(this)
 //        logoutButton = binding.logOffButtonLogin
 //        logoutButton.setOnClickListener(this)
     }
@@ -82,6 +83,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
             loginButton.id -> LoginUser()
             binding.backToRegisterSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_register_fragment)
+            binding.forgotPasswordSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_forgotPasswordFragment)
 //            logoutButton.id -> LogOutUser()
 
         }

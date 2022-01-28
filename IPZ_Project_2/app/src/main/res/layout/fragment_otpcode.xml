@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="@string/otp_code" />
+            android:hint="@string/otp_code" />
 
         <Button
             android:id="@+id/otp_button"

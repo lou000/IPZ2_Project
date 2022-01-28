@@ -32,6 +32,9 @@
         <action
             android:id="@+id/action_LogInFragment_to_otpcode"
             app:destination="@id/otpcode"></action>
+        <action
+            android:id="@+id/action_LogInFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatFragment"
@@ -106,6 +109,14 @@
         <action
             android:id="@+id/action_otpcode_to_newMessageFragment"
             app:destination="@id/newMessageFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.ipz_project_2.fragments.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment" >
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_LogInFragment"
+            app:destination="@id/LogInFragment" />
     </fragment>
 
 </navigation>
