@@ -406,7 +406,6 @@ class ChatFragment : Fragment() {
     private fun sendTextMessage() {
         val timestamp = Date().time
         val textChatMessage = createChatMessageOutgoing(TYPE_TEXT_OUTGOING, timestamp)
-        Log.d("FUCK", "${args.currentContact.publicKey}")
         val firebaseMessage =
             FirebaseMessage(TYPE_TEXT_FIREBASE,
                 RSAEncoding.encryptMessage(binding.chatTextInput.text.toString(), args.currentContact.publicKey), timestamp)
@@ -451,7 +450,7 @@ class ChatFragment : Fragment() {
                         else -> {
                             val storage = Firebase.storage
                             val reference = storage.getReferenceFromUrl(
-                                firebaseMessage.message
+                                RSAEncoding.decryptMessage(firebaseMessage.message, args.privateKey)
                             )
 
                             dirPath =
@@ -623,8 +622,9 @@ class ChatFragment : Fragment() {
             duration
         )
 
+
         val firebaseVoiceMessage =
-            FirebaseMessage(TYPE_VOICE_FIREBASE, downloadUri.toString(), timestamp)
+            FirebaseMessage(TYPE_VOICE_FIREBASE, RSAEncoding.encryptMessage(downloadUri.toString(), args.currentContact.publicKey), timestamp)
 
         val reference = FirebaseDatabase.getInstance()
             .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")
