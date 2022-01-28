@@ -571,7 +571,9 @@ class ChatFragment : Fragment() {
         val filePath = "$dirPath/$filename.mp3"
         val storage = Firebase.storage
         val storageRef = storage.reference
-        var fileToUpload = Uri.fromFile(File(filePath))
+        val file = File(filePath)
+        
+        var fileToUpload = Uri.fromFile(file)
         val audioRef =
             storageRef.child("audios/${args.currentContact.contactUid}/${fileToUpload.lastPathSegment}")
         val uploadTask = audioRef.putFile(fileToUpload)
