@@ -18,8 +18,10 @@ data class ChatMessage(
     var filename: String?,
     var filePath: String?,
     var duration: String?,
+    var encryptedAESKey: String?
     ): Parcelable {
-    constructor(): this(-1,"",-1,"",-1,-1,null,null,null)
+    constructor(): this(-1,"",-1,"",-1,-1,
+        null,null,null, null)
 
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L
@@ -38,6 +40,7 @@ data class AdapterMessage(
     var contactName: String,
     var filePath: String?,
     var duration: String?,
+    var encryptedAESKey: String?
 )
 
 

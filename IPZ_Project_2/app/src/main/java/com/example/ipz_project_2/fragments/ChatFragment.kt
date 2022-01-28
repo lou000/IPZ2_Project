@@ -31,7 +31,6 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.*
 import android.media.MediaMetadataRetriever
 import android.widget.Toast
@@ -42,10 +41,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.example.ipz_project_2.AESEncoding
 import com.example.ipz_project_2.SwipeToDeleteCallback
 import com.example.ipz_project_2.User
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import java.io.*
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 
@@ -64,9 +65,10 @@ class ChatFragment : Fragment() {
     data class FirebaseMessage(
         var type: Int,
         var message: String,
-        var timestamp: Long
+        var timestamp: Long,
+        var encryptedAESKey: String
     ) {
-        constructor() : this(-1, "", 0L)
+        constructor() : this(-1, "", 0L, "")
     }
 
 
@@ -89,6 +91,7 @@ class ChatFragment : Fragment() {
     private lateinit var recorder: MediaRecorder
     private var dirPath = ""
     private var filename = ""
+    private var encryptedAESKey = ""
     private lateinit var timer: Chronometer
     private val args by navArgs<ChatFragmentArgs>()
     private var userUID: String? = null
@@ -342,6 +345,7 @@ class ChatFragment : Fragment() {
                     args.userID,
                     null,
                     null,
+                    null,
                     null
                 )
             }
@@ -355,7 +359,8 @@ class ChatFragment : Fragment() {
                     args.userID,
                     filename,
                     "$dirPath/$filename.mp3",
-                    durationVoiceMessage(timeWhenStopped)
+                    durationVoiceMessage(timeWhenStopped),
+                    encryptedAESKey
                 )
             }
             else -> return null
@@ -364,7 +369,7 @@ class ChatFragment : Fragment() {
 
     private fun createChatMessageIncoming(
         firebaseMessage: FirebaseMessage,
-        idFrom: Long, filename: String? = null, filePath: String? = null, duration: String? = null
+        idFrom: Long, filename: String? = null, filePath: String? = null, duration: String? = null, encryptedAESKey: String? = null
     ): ChatMessage? {
 
         when (firebaseMessage.type) {
@@ -378,6 +383,7 @@ class ChatFragment : Fragment() {
                     getTimeFromTimestamp(firebaseMessage.timestamp),
                     idFrom,
                     args.userID,
+                    null,
                     null,
                     null,
                     null
@@ -395,7 +401,8 @@ class ChatFragment : Fragment() {
                     args.userID,
                     filename,
                     filePath,
-                    duration
+                    duration,
+                    encryptedAESKey
                 )
             }
             else -> return null
@@ -408,7 +415,7 @@ class ChatFragment : Fragment() {
         val textChatMessage = createChatMessageOutgoing(TYPE_TEXT_OUTGOING, timestamp)
         val firebaseMessage =
             FirebaseMessage(TYPE_TEXT_FIREBASE,
-                RSAEncoding.encryptMessage(binding.chatTextInput.text.toString(), args.currentContact.publicKey), timestamp)
+                RSAEncoding.encryptMessage(binding.chatTextInput.text.toString(), args.currentContact.publicKey), timestamp, "")
         val referance = FirebaseDatabase.getInstance()
             .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")
             .push()
@@ -447,7 +454,7 @@ class ChatFragment : Fragment() {
                                 snapshot.ref.removeValue()
                             }
                         }
-                        else -> {
+                        TYPE_VOICE_FIREBASE -> {
                             val storage = Firebase.storage
                             val reference = storage.getReferenceFromUrl(
                                 RSAEncoding.decryptMessage(firebaseMessage.message, args.privateKey)
@@ -457,14 +464,27 @@ class ChatFragment : Fragment() {
                                 requireActivity().getExternalFilesDir("/")?.absolutePath.toString()
                             val filename =
                                 "in_${args.currentContact.contactUid}_${firebaseMessage.timestamp}.mp3"
-                            val file: File = File(dirPath, filename)
+                            val file: File = File(dirPath, filename+"_encrypted")
                             reference.getFile(file).addOnSuccessListener {
+
+                                // first decrypt AES string
+                                val aesKey = RSAEncoding.decryptMessage(firebaseMessage.encryptedAESKey, args.privateKey)
+
+                                // decrypt bytes using AES key
+                                val bytes = AESEncoding.decryptFile(file.readBytes(), aesKey);
+
+                                // write file
+                                val decFile = writeFile(bytes, "$dirPath/$filename")
+
+                                // remove encrypted file
+                                file.delete()
+
                                 val voiceChatMessage = createChatMessageIncoming(
                                     firebaseMessage,
                                     args.currentContact.contactId,
                                     filename,
                                     "$dirPath/$filename",
-                                    getDuration(file)
+                                    getDuration(decFile)
                                 )
                                 if (voiceChatMessage != null) {
                                     appViewModel.addChatMessage(voiceChatMessage)
@@ -565,6 +585,24 @@ class ChatFragment : Fragment() {
 //        sendRecording()
     }
 
+    private fun readFile(file: File): ByteArray {
+        val fileContents = file.readBytes()
+        val inputBuffer = BufferedInputStream(
+            FileInputStream(file)
+        )
+        inputBuffer.read(fileContents)
+        inputBuffer.close()
+
+        return fileContents
+    }
+    private fun writeFile(fileData: ByteArray, path: String): File {
+        val file = File(path)
+        val bos = BufferedOutputStream(FileOutputStream(file, false))
+        bos.write(fileData)
+        bos.flush()
+        bos.close()
+        return file;
+    }
 
     private fun sendRecording(timer: Long) {
 
@@ -572,8 +610,20 @@ class ChatFragment : Fragment() {
         val storage = Firebase.storage
         val storageRef = storage.reference
         val file = File(filePath)
-        
-        var fileToUpload = Uri.fromFile(file)
+
+
+
+        //FIXME: this maybe too expensive to do one the main thread
+        val aesKey = Base64.getEncoder().encodeToString(AESEncoding().secretKey.encoded)
+
+        // encrypt AES key with RSA public key
+        encryptedAESKey = RSAEncoding.encryptMessage(aesKey, args.currentContact.publicKey)
+        val bytes = readFile(file);
+        val encrypted = AESEncoding.encryptFile(bytes, aesKey)
+        val encryptedFilePath = "$dirPath/${filename}_encrypted.mp3"
+
+        val encFile = writeFile(encrypted, encryptedFilePath);
+        val fileToUpload = Uri.fromFile(encFile)
         val audioRef =
             storageRef.child("audios/${args.currentContact.contactUid}/${fileToUpload.lastPathSegment}")
         val uploadTask = audioRef.putFile(fileToUpload)
@@ -599,6 +649,7 @@ class ChatFragment : Fragment() {
                 // Handle failures
                 // ...
             }
+            encFile.delete()
         }
 //        LocalDateTime.now(TimeZone.getDefault().toZoneId())
 //            .format(DateTimeFormatter.ofPattern("HH:mm"))
@@ -621,12 +672,13 @@ class ChatFragment : Fragment() {
             args.userID,
             filename,
             filePath,
-            duration
+            duration,
+            encryptedAESKey
         )
 
 
         val firebaseVoiceMessage =
-            FirebaseMessage(TYPE_VOICE_FIREBASE, RSAEncoding.encryptMessage(downloadUri.toString(), args.currentContact.publicKey), timestamp)
+            FirebaseMessage(TYPE_VOICE_FIREBASE, RSAEncoding.encryptMessage(downloadUri.toString(), args.currentContact.publicKey), timestamp, encryptedAESKey)
 
         val reference = FirebaseDatabase.getInstance()
             .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")

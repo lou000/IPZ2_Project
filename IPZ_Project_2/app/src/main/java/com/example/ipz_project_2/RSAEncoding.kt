@@ -1,9 +1,12 @@
+import java.io.ByteArrayOutputStream
 import java.security.spec.PKCS8EncodedKeySpec
 import javax.crypto.Cipher
 import java.security.spec.X509EncodedKeySpec
 import java.io.IOException
 import java.security.*
 import java.util.*
+import javax.crypto.CipherOutputStream
+import javax.crypto.spec.IvParameterSpec
 
 /*
  * RSA Key Size: 4096
@@ -14,7 +17,6 @@ class RSAEncoding {
     var publicKey: PublicKey
 
     companion object {
-        // Encrypt using publickey
         @Throws(Exception::class)
         fun encryptMessage(plainText: String, publickey: String): String {
             val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
@@ -22,13 +24,16 @@ class RSAEncoding {
             return Base64.getEncoder().encodeToString(cipher.doFinal(plainText.toByteArray()))
         }
 
-        // Decrypt using privatekey
         @Throws(Exception::class)
         fun decryptMessage(encryptedText: String?, privatekey: String): String {
             val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
             cipher.init(Cipher.DECRYPT_MODE, loadPrivateKey(privatekey))
             return String(cipher.doFinal(Base64.getDecoder().decode(encryptedText)))
         }
+
+
+
+
 
         // convert String publickey to Key object
         @Throws(GeneralSecurityException::class, IOException::class)
@@ -48,29 +53,6 @@ class RSAEncoding {
             val priv = fact.generatePrivate(keySpec)
             Arrays.fill(clear, 0.toByte())
             return priv
-
-//        @Throws(Exception::class)
-//        @JvmStatic
-//        fun main(args: Array<String>) {
-//            val secretText = "www.knowledgefactory.net"
-//            val keyPairGenerator = RSAKeyPair()
-//            // Generate private and public key
-//            val privateKey: String = Base64.getEncoder().
-//
-//            encodeToString(keyPairGenerator.privateKey.encoded)
-//            val publicKey: String = Base64.getEncoder().
-//
-//            encodeToString(keyPairGenerator.publicKey.encoded)
-//            println("Private Key: $privateKey")
-//            println("Public Key: $publicKey")
-//
-//            // Encrypt secret text using public key
-//            val encryptedValue = encryptMessage(secretText, publicKey)
-//            println("Encrypted Value: $encryptedValue")
-//            // Decrypt
-//            val decryptedText = decryptMessage(encryptedValue, privateKey)
-//            println("Decrypted output: $decryptedText")
-//        }
         }
     }
 
