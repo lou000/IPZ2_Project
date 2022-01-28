@@ -81,7 +81,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         Log.d(TAG, "On click action")
         when (v!!.id) {
 
-            loginButton.id -> LoginUser()
+            loginButton.id -> validateForm()
             binding.backToRegisterSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_register_fragment)
             binding.forgotPasswordSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_forgotPasswordFragment)
 //            logoutButton.id -> LogOutUser()
@@ -168,6 +168,21 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
     companion object {
         private const val TAG = "LOGIN"
 
+    }
+
+    private fun validateForm() {
+        val email: String = binding.emailEdittextLogIn.text.toString().trim()
+        val password: String = binding.passwordEdittextLogIn.text.toString().trim()
+
+        if(email.isNotEmpty() && password.isNotEmpty()){
+            LoginUser()
+        }
+        else{
+            Toast.makeText(
+                context, "Fields can't be empty",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }
 

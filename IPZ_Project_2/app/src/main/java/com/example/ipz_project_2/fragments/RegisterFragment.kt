@@ -1,13 +1,20 @@
 package com.example.ipz_project_2.fragments
 
 import RSAEncoding
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -27,6 +34,7 @@ import java.security.MessageDigest
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import java.util.*
 
@@ -45,6 +53,20 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         val publicKey: String
     )
 
+    private var wifiPermissions =
+        arrayOf(
+            Manifest.permission.READ_SMS,
+            Manifest.permission.READ_PHONE_NUMBERS,
+            Manifest.permission.READ_PHONE_STATE
+        )
+
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                Log.e("Permission", "${it.key} = ${it.value}")
+            }
+        }
+    private lateinit var telephonyManager: TelephonyManager
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var registerButton: Button
     private var hash: String? = null
@@ -68,7 +90,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-
+requestPermissions()
         database = Firebase.database
         mDatabase = database.getReference("user")
         if (auth.currentUser != null) { //TODO Make function of this
@@ -88,6 +110,9 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+
         binding = FragmentRegisterBinding.bind(view)
         navController = Navigation.findNavController(view)
 
@@ -96,8 +121,24 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
         accountAlreadyCreated.setOnClickListener(this)
         registerButton.setOnClickListener(this)
-
+        binding.phoneRegister.onFocusChangeListener  = View.OnFocusChangeListener { view, b ->
+            if (b){
+                // do something when edit text get focus
+                getPhoneNumber()
+            }else{
+//                // do something when edit text lost focus
+//                textView.text = "EditText lost focus."
+//                textView.append("\nSoft keyboard hide.")
+//                textView.append("\n\nYou entered : ${editText.text}")
+//
+//                // hide soft keyboard when edit text lost focus
+//                hideSoftKeyboard(editText)
+            }
+        }
     }
+
+
+
 
     private fun getIP() {
         Log.i("getIP", " Called getIp")
@@ -119,7 +160,8 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onClick(v: View?) {
         when (v!!.id) {
             accountAlreadyCreated.id -> navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
-            registerButton.id -> registerUser()
+            registerButton.id -> validateForm()
+            binding.phoneRegister.id -> getPhoneNumber()
 
         }
     }
@@ -146,6 +188,23 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         hash = res
         Log.i("hash", res)
         return res
+    }
+
+    private fun validateForm() {
+        val username: String = binding.usernameRegister.text.toString().trim()
+        val email: String = binding.emailRegister.text.toString().trim()
+        val phoneNumber: String = binding.phoneRegister.text.toString().trim()
+        val password: String = binding.passwordRegister.text.toString().trim()
+
+        if(username.isNotEmpty() && email.isNotEmpty() && phoneNumber.isNotEmpty() && password.isNotEmpty()){
+            registerUser()
+        }
+        else{
+            Toast.makeText(
+                context, "Fields can't be empty",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun registerUser() {
@@ -178,7 +237,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 //                    usr.hash = getUserHash(usr)
                     if (!it.isSuccessful) {
                         Log.d("Register", "User could not be registered")
-                        navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
+//                        navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
                         Toast.makeText(requireActivity(), it.exception?.message, Toast.LENGTH_SHORT).show();
                     } else {
                         //user doesn't exist, lets register him
@@ -216,4 +275,58 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         mDatabase.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(new_user)
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
+
+    private fun requestPermissions() {
+        var arr: Array<String> = arrayOf()
+        val permissionToAsk: MutableList<String> = arr.toMutableList()
+
+        for (permission in wifiPermissions) {
+            permissionToAsk.add(permission)
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(), permission
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    Log.d("Permission", "Permisison...")
+                }
+                this.shouldShowRequestPermissionRationale(permission) -> {
+                    Snackbar.make(
+                        requireActivity().findViewById(android.R.id.content),
+                        "PERMISSION NEEDED FOR WIFI MONITOR TO WORK", //MAKE ARRAY OF 4 WITH TEXTS FOR EACH WEDLUG DOKUMENTAJII TEO CO SIE WPISE W MANIFESCIE
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction("DISMISS", View.OnClickListener {
+                        println("Snackbar Set Action - OnClick.")
+                    }).show()
+                }
+                else -> {
+//                    permissionToAsk.add(permission)
+                    Log.d("Permission", permission)  // Log state of permissions
+                }
+            }
+        }
+        requestMultiplePermissions.launch(permissionToAsk.toTypedArray())
+    }
+
+
+    private fun getPhoneNumber(){
+        telephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val phoneNnumber = if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_SMS
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_PHONE_NUMBERS
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions()
+            return
+        }else
+            telephonyManager.line1Number
+        Log.e("TESTINF", phoneNnumber)
+        Log.e("TESTINF", "phoneNnumber")
+        binding.phoneRegister.setText(phoneNnumber)
+    }
+
 }
