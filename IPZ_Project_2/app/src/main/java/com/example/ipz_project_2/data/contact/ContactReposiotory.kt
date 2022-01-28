@@ -13,44 +13,50 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.coroutines.CoroutineContext
 
 
-class ContactRepository(application: Application) {
-
-    private val db: AppDatabase = AppDatabase.getDatabase(application)
-
-    val allContacts: Flow<MutableList<Contact>> = db.contactsDao().getAll()
-
-    fun userContacts(name: String): Flow<List<UserWithContacts>> = db.contactsDao().getUserWithContacts(name)
+class ContactRepository(private  val contactsDao: ContactsDao) {
 
 
-    fun getContactId(uid: String):Long {
-        return db.contactsDao().getContactId(uid)
+
+    val allContacts: Flow<MutableList<Contact>> = contactsDao.getAll()
+
+    fun userContacts(name: String): Flow<MutableList<UserWithContacts>> = contactsDao.getUserWithContacts(name)
+
+
+    fun getContactId(uid: String):Flow<Long> {
+        return contactsDao.getContactId(uid)
     }
 
+    fun getLatestId():Flow<Long> {
+        return contactsDao.getLatestId()
+    }
+
+
+
     fun getContactUID(name: String):Flow<String> {
-        return db.contactsDao().getContactUID(name)
+        return contactsDao.getContactUID(name)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun joinUserContacts(userWithContacts: UserContactsCrossRef) {
-        db.contactsDao().insert(userWithContacts)
+        contactsDao.insert(userWithContacts)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun addContact(contact: Contact) {
-        db.contactsDao().insert(contact)
+        contactsDao.insert(contact)
     }
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun updateContact(contact: Contact) {
-        db.contactsDao().update(contact)
+        contactsDao.update(contact)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun deleteContact(contact: Contact) {
-        db.contactsDao().delete(contact)
+        contactsDao.delete(contact)
     }
 
 //    @Suppress("RedundantSuspendModifier")

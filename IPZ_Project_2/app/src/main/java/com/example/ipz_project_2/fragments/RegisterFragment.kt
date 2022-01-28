@@ -32,6 +32,7 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
+import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
 import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
 import com.example.ipz_project_2.data.contact.Contact
 import com.example.ipz_project_2.data.contact.ContactRepository
@@ -98,20 +99,14 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        var sec: RSAKotlinDemo3 = RSAKotlinDemo3()
-//        Log.e("TESTINF","${sec.privateKey}   ${sec.publicKey}")
-
         binding = FragmentRegisterBinding.bind(view)
         navController = Navigation.findNavController(view)
 
         registerButton = binding.registerButton
         accountAlreadyCreated = binding.accountAlreadyCreatedTextview
 
-
-
         accountAlreadyCreated.setOnClickListener(this)
         registerButton.setOnClickListener(this)
-
 
     }
 
@@ -180,34 +175,19 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         if (this.isValidPassword(password)) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener() { it ->
-                    val user = auth.currentUser
-                        ?: throw Exception("Firebase connection could not be established")
+//                    val user = auth.currentUser
+//                        ?: throw Exception("Firebase connection could not be established")
 //                    var usr = User(username, email, phoneNumber, "")
 //                    usr.hash = getUserHash(usr)
                     if (!it.isSuccessful) {
                         Log.d("Register", "User could not be registered")
-                        mDatabase.orderByKey().equalTo(newUserHash)
-                            .addValueEventListener(object : ValueEventListener {
-                                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                    if (dataSnapshot.exists()) {
-                                        //TODO: show user message
-                                        Log.d("Register", "User already exists, do something")
-                                        navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
-                                    } else {
-                                        throw Exception("Something went wrong while registering user")
-                                    }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    throw Exception("Something went wrong while registering user")
-                                }
-                            })
-//                        updateUI(user, usr)
+                        navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
+                        Toast.makeText(requireActivity(), it.exception?.message, Toast.LENGTH_SHORT).show();
                     } else {
                         //user doesn't exist, lets register him
                         Log.d("Register", "createUserWithEmail:success")
 
-                        updateUI(user, new_user)
+                        updateUI(auth.currentUser, new_user)
                     }
                 }
         } else {
@@ -221,45 +201,22 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
 
     private fun updateUI(user: FirebaseUser?, new_user: UserFB) {
-        //TODO: info about login/registration success
 
-        val username: String = binding.usernameRegister.text.toString().trim()
-        val phoneNumber: String = binding.phoneRegister.text.toString().trim()
-        val hash = getUserHash(username, phoneNumber)
-
-//        val viewModel: FirebaseUserViewModel by activityViewModels()
-//        viewModel.selectItem(user)
-        Log.e("TESTINF", "MY ID ${FirebaseAuth.getInstance().currentUser!!.uid}")
-
-
-        val appViewModel: AppViewModel by activityViewModels()
-        {
+        val appViewModel: AppViewModel by activityViewModels() {
             AppViewModelFactory(
-                ChatMessageRepository(
-                    requireActivity().application
-                ),
-                ContactRepository(
-                    requireActivity().application
-                ),
-                UserRepository(
-                    requireActivity().application
-                )
+                (requireActivity().application as ChatMessageApplication).chatRepository,
+                (requireActivity().application as ChatMessageApplication).contactRepository,
+                (requireActivity().application as ChatMessageApplication).userRepository
             )
         }
 
         appViewModel.addUser(User(FirebaseAuth.getInstance().currentUser!!.uid,
-            binding.phoneRegister.text.toString().trim(),
             binding.emailRegister.text.toString().trim(),
-            hash,"privateKey"))
+            binding.phoneRegister.text.toString().trim(),
+            "privateKey"))
 
-//        appViewModel.addContact(
-//            Contact(
-//                FirebaseAuth.getInstance().currentUser!!.uid,
-//                binding.phoneRegister.text.toString().trim(),
-//                hash
-//            )
-//        )
-        mDatabase.child(hash).setValue(new_user)
+
+        mDatabase.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(new_user)
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
 }

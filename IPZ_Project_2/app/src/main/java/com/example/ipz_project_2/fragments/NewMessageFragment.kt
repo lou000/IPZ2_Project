@@ -12,16 +12,14 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ipz_project_2.data.contact.Contact
-import com.example.ipz_project_2.data.contact.ContactViewModel
-import com.example.ipz_project_2.data.contact.ContactsAdapter
 import com.example.ipz_project_2.R
 import com.example.ipz_project_2.User
 import com.example.ipz_project_2.data.AppDatabase
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
+import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
 import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
-import com.example.ipz_project_2.data.contact.ContactRepository
+import com.example.ipz_project_2.data.contact.*
 import com.example.ipz_project_2.data.user.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
@@ -30,13 +28,6 @@ import java.util.*
 class NewMessageFragment : Fragment(R.layout.fragment_new_message),
     ContactsAdapter.OnItemClickListener {
 
-//    private val appViewModel: AppViewModel by activityViewModels()
-//    {
-//        AppViewModelFactory(
-//            ChatMessageRepository(Application(),"asdas"),
-//            ContactRepository(Application(),"asdas")
-//        )
-//    }
 
     private lateinit var contacts: ArrayList<Contact>
     private lateinit var mAdapter: ContactsAdapter
@@ -49,50 +40,54 @@ class NewMessageFragment : Fragment(R.layout.fragment_new_message),
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_new_message, container, false)
-
-        setHasOptionsMenu(true)
-        contacts = ArrayList()
-        mAdapter = ContactsAdapter(contacts, this, findNavController())
-        recyclerview = view.findViewById(R.id.new_msg_recycler_view)
-        recyclerview.apply {
-            adapter = mAdapter
-            layoutManager = LinearLayoutManager(context)
-        }
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val appViewModel: AppViewModel by activityViewModels() {
+            AppViewModelFactory(
+                (requireActivity().application as ChatMessageApplication).chatRepository,
+                (requireActivity().application as ChatMessageApplication).contactRepository,
+                (requireActivity().application as ChatMessageApplication).userRepository
+            )
+        }
+
         if (FirebaseAuth.getInstance().currentUser == null) {
             Navigation.findNavController(view)
                 .navigate(R.id.action_newMessageFragment_to_LogInFragment)
         } else {
-            val appViewModel: AppViewModel by activityViewModels()
-            {
-                  AppViewModelFactory(
-                    ChatMessageRepository(requireActivity().application),
-                    ContactRepository(requireActivity().application),
-                    UserRepository(requireActivity().application)
-                )
-            }
 
             appViewModel.user(FirebaseAuth.getInstance().currentUser!!.uid)
                 .observe(viewLifecycleOwner, Observer { it ->
                     if (it != null) {
                         appUser = it
+                        contacts = ArrayList()
+                        mAdapter = ContactsAdapter(appUser.userId, contacts, this, findNavController())
+                        recyclerview = view.findViewById(R.id.new_msg_recycler_view)
+                        recyclerview.apply {
+                            adapter = mAdapter
+                            layoutManager = LinearLayoutManager(context)
+                        }
 
-                    }
-                })
-            appViewModel.usersContacts(FirebaseAuth.getInstance().currentUser!!.uid)
-                .observe(viewLifecycleOwner, Observer { it ->
-                    if (it != null) {
-                        if (it.isNotEmpty())
-                            mAdapter.setData(it[0].contacts)
-                    }
+                        appViewModel.usersContacts(FirebaseAuth.getInstance().currentUser!!.uid)
+                            .observe(viewLifecycleOwner, Observer { it ->
+
+                                if (it != null) {
+                                    if (it.isNotEmpty()) {
+                                        var sortedContacts = it[0].contacts.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER,{ it.name }) )
+                                        mAdapter.setData(sortedContacts)
+                                    }
+                                }
 //                mAdapter.setData(contacts)
+                            })
+                    }
                 })
         }
+
+
+        setHasOptionsMenu(true)
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -102,7 +97,11 @@ class NewMessageFragment : Fragment(R.layout.fragment_new_message),
                 .navigate(R.id.action_newMessageFragment_to_LogInFragment)
             true
         }
-
+        R.id.add -> {
+            val action = NewMessageFragmentDirections.actionNewMessageFragmentToAddNewContactFragment(appUser.userId)
+            Navigation.findNavController(view!!).navigate(action)
+            true
+        }
         else -> {
 
             super.onOptionsItemSelected(item)

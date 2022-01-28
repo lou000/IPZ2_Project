@@ -9,6 +9,7 @@ import com.example.ipz_project_2.data.contact.UserWithContacts
 import com.example.ipz_project_2.data.user.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 
@@ -21,22 +22,28 @@ class AppViewModel(
     fun user(name: String):LiveData<User> = userRepository.getUser(name).asLiveData()
     fun user2(name: String):User = userRepository.getUser2(name)
 
-    fun usersContacts(name: String):LiveData<List<UserWithContacts>> = contactRepository.userContacts(name).asLiveData()
+    fun usersContacts(name: String):LiveData<MutableList<UserWithContacts>> = contactRepository.userContacts(name).asLiveData()
 
     fun addUser(user: User) = viewModelScope.launch {
         userRepository.addUser(user)
     }
 
+    fun msgs(userID: Long): LiveData<MutableList<AdapterMessage>> = chatRepository.getMsgs(userID).asLiveData()
+
     private val uiScope = CoroutineScope(Dispatchers.Main)
 
     val allScans: LiveData<MutableList<ChatMessage>> = chatRepository.allMessages.asLiveData()
 
-    fun getUserMessages(userUID: Long): LiveData<MutableList<ChatMessage>> {
-        return chatRepository.contactChat(userUID).asLiveData()
+    fun getUserMessages(userID: Long, contactID: Long): LiveData<MutableList<ChatMessage>> {
+        return chatRepository.contactChat(userID, contactID).asLiveData()
     }
 
-    fun getContactId(uid: String): Long {
-        return contactRepository.getContactId(uid)
+    fun getContactId(uid: String): LiveData<Long> {
+        return contactRepository.getContactId(uid).asLiveData()
+    }
+
+    fun getLatestId(): LiveData<Long> {
+        return contactRepository.getLatestId().asLiveData()
     }
 
     fun getContactUID(name: String): LiveData<String> {
@@ -70,6 +77,10 @@ class AppViewModel(
     }
 
     fun joinUserContacts(userWithContacts: UserContactsCrossRef) = viewModelScope.launch {
+        contactRepository.joinUserContacts(userWithContacts)
+    }
+
+    fun joinUserMessages(userWithContacts: UserContactsCrossRef) = viewModelScope.launch {
         contactRepository.joinUserContacts(userWithContacts)
     }
 

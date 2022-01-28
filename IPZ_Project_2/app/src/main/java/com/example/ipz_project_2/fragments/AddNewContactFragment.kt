@@ -10,25 +10,19 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.ipz_project_2.R
-import com.example.ipz_project_2.User
-import com.example.ipz_project_2.data.AppDatabase
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
-import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
-import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
 import com.example.ipz_project_2.data.contact.*
 import com.example.ipz_project_2.databinding.FragmentAddNewContactBinding
-import com.google.firebase.FirebaseError
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.lang.Exception
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -55,7 +49,9 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
     private lateinit var mDatabase: DatabaseReference
     private lateinit var new_contact: Contact
     private lateinit var add_button: Button
-    private lateinit var appUser: User
+    private val args by navArgs<AddNewContactFragmentArgs>()
+
+//    private lateinit var appUser: User
 
 
     val appViewModel: AppViewModel by activityViewModels()
@@ -72,26 +68,6 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_new_contact, container, false)
-//        appViewModel.user(FirebaseAuth.getInstance().currentUser!!.uid).observe(viewLifecycleOwner, Observer { it ->
-//            if (it != null) {
-//                appUser = it
-//            }
-//        })
-
-
-        appViewModel.user(FirebaseAuth.getInstance().currentUser!!.uid)
-            .observe(viewLifecycleOwner, Observer { usr ->
-                if (usr != null) {
-                    appUser = usr
-
-                    Log.e("TESTINF", "APP VIEW MODEL  GET CURRENT USER: ${usr}")
-                } else {
-                    Log.e("TESTINF", "usr null?")
-
-                }
-            })
-
-
         return view
     }
 
@@ -114,11 +90,6 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
     private fun insertContactToDatabase() {
         username = binding.usernameAddNewContact.text.toString().trim()
         phoneNumber = binding.phonenumberAddNewContact.text.toString().trim()
-//        new_contact = Contact(username, phoneNumber, "SOf7mictlyOE64XhIoEnadwWnlh2")
-        val to_encode = username + phoneNumber
-
-        val res = String(sha_256(to_encode).toByteArray())
-        Log.e("hash", res)
 
         mDatabase.child("user")
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -126,20 +97,22 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
                     if (snapshot.exists()) {
                         for (ds: DataSnapshot in snapshot.children) {
                             if (ds.child("phoneNumber").value == phoneNumber) {
-//                                appViewModel.user("").observe(viewLifecycleOwner, Observer { it ->
-//                                    if (it != null) {
                                 new_contact =
                                     Contact(username, phoneNumber, ds.key.toString())
-//                            new_contact = Contact(username, phoneNumber, "ds.key.toString()")
-
                                 appViewModel.addContact(new_contact)
-                                appViewModel.joinUserContacts(
-                                    UserContactsCrossRef(
-                                        appUser.username,
-                                        new_contact.uid
-                                    )
-                                )
-                                findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+                                appViewModel.getLatestId().observe(viewLifecycleOwner,
+                                    Observer { it ->
+                                        if (it != null) {
+                                            appViewModel.joinUserContacts(
+                                                UserContactsCrossRef(
+                                                    args.userID,
+                                                    it
+                                                )
+                                            )
+                                            findNavController().navigate(R.id.action_addNewContactFragment_to_newMessageFragment)
+                                        }
+
+                                    })
                                 break
                             }
                         }

@@ -32,14 +32,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
-
-//        auth = Firebase.auth
-//        var currentUser = auth.currentUser
-//        viewModel.selectedItem.observe(this, Observer { user ->
-//            currentUser = user
-//        })
-
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val navFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 

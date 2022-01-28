@@ -50,7 +50,7 @@
         app:layout_constraintTop_toBottomOf="@+id/email_edittext_log_in" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/back_to_register_span"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Back to regitration"
@@ -59,12 +59,12 @@
         app:layout_constraintTop_toBottomOf="@+id/login_button_register_log_in"
         android:clickable="true"/>
 
-    <Button
-        android:id="@+id/log_off_button_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+<!--    <Button-->
+<!--        android:id="@+id/log_off_button_login"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Button"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textView" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,19 +7,23 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ContactsDao {
-    @Query("SELECT * FROM contacts ORDER BY name ASC") //TODO: OFFSET TO IGNORE FIRST CONTACT -  MAIN USER
+    @Query("SELECT * FROM contacts ORDER BY name ASC")
     fun getAll(): Flow<MutableList<Contact>>
 
-    @Query("SELECT id FROM contacts WHERE uid == :uid") //TODO: OFFSET TO IGNORE FIRST CONTACT -  MAIN USER
-    fun getContactId(uid: String): Long
+    @Query("SELECT contactId FROM contacts WHERE contactUid == :uid")
+    fun getContactId(uid: String): Flow<Long>
 
-    @Query("SELECT uid FROM contacts WHERE name == :name")
+    @Query("SELECT MAX(contactId) FROM contacts")
+    fun getLatestId(): Flow<Long>
+
+    @Query("SELECT contactUid FROM contacts WHERE name == :name")
     fun getContactUID(name: String): Flow<String>
 
 
+
     @Transaction
-    @Query("SELECT * FROM user WHERE username == :name")
-    fun getUserWithContacts(name: String): Flow<List<UserWithContacts>>
+    @Query("SELECT * FROM user WHERE userUid == :name")
+    fun getUserWithContacts(name: String): Flow<MutableList<UserWithContacts>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(join: UserContactsCrossRef)

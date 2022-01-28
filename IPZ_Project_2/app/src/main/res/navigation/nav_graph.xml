@@ -39,11 +39,15 @@
         tools:layout="@layout/fragment_chat"
         android:label="{label}">
         <argument
+            android:name="userID"
+            app:argType="long" />
+        <argument
             android:name="currentContact"
             app:argType="com.example.ipz_project_2.data.contact.Contact" />
         <argument
             android:name="label"
             app:argType="string" />
+
     </fragment>
     <fragment
         android:id="@+id/contactListFragment"
@@ -69,12 +73,18 @@
         <action
             android:id="@+id/action_newMessageFragment_to_LogInFragment2"
             app:destination="@id/LogInFragment" />
+        <action
+            android:id="@+id/action_newMessageFragment_to_addNewContactFragment"
+            app:destination="@id/addNewContactFragment" />
     </fragment>
     <fragment
         android:id="@+id/addNewContactFragment"
         android:name="com.example.ipz_project_2.fragments.AddNewContactFragment"
         android:label="new_contact"
         tools:layout="@layout/fragment_add_new_contact" >
+        <argument
+            android:name="userID"
+            app:argType="long" />
         <action
             android:id="@+id/action_addNewContactFragment_to_newMessageFragment"
             app:destination="@id/newMessageFragment" />
