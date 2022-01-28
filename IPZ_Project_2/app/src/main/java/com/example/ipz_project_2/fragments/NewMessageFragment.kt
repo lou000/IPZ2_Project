@@ -64,7 +64,7 @@ class NewMessageFragment : Fragment(R.layout.fragment_new_message),
                     if (it != null) {
                         appUser = it
                         contacts = ArrayList()
-                        mAdapter = ContactsAdapter(appUser.userId, contacts, this, findNavController())
+                        mAdapter = ContactsAdapter(appUser.userId, appUser.privateKey, contacts, this, findNavController())
                         recyclerview = view.findViewById(R.id.new_msg_recycler_view)
                         recyclerview.apply {
                             adapter = mAdapter

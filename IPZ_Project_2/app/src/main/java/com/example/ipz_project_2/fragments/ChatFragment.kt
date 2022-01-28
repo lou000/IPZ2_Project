@@ -1,5 +1,6 @@
 package com.example.ipz_project_2.fragments
 
+import RSAEncoding
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -363,10 +364,12 @@ class ChatFragment : Fragment() {
     ): ChatMessage? {
 
         when (firebaseMessage.type) {
+
             TYPE_TEXT_FIREBASE -> {
+                val decodedMsg = RSAEncoding.decryptMessage(firebaseMessage.message, args.privateKey)
                 return ChatMessage(
                     TYPE_TEXT_INCOMING,
-                    firebaseMessage.message,
+                    decodedMsg,
                     firebaseMessage.timestamp,
                     getTimeFromTimestamp(firebaseMessage.timestamp),
                     idFrom,
@@ -399,8 +402,10 @@ class ChatFragment : Fragment() {
     private fun sendTextMessage() {
         val timestamp = Date().time
         val textChatMessage = createChatMessageOutgoing(TYPE_TEXT_OUTGOING, timestamp)
+        Log.d("FUCK", "${args.currentContact.publicKey}")
         val firebaseMessage =
-            FirebaseMessage(TYPE_TEXT_FIREBASE, binding.chatTextInput.text.toString(), timestamp)
+            FirebaseMessage(TYPE_TEXT_FIREBASE,
+                RSAEncoding.encryptMessage(binding.chatTextInput.text.toString(), args.currentContact.publicKey), timestamp)
         val referance = FirebaseDatabase.getInstance()
             .getReference("/chats/${args.currentContact.contactUid}/${FirebaseAuth.getInstance().currentUser?.uid}")
             .push()

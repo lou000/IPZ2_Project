@@ -11,6 +11,7 @@ data class Contact(
     var name: String,
     var phoneNumber: String,
     var contactUid: String,
+    var publicKey: String,
 
 
 ):Parcelable {

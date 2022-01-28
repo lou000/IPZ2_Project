@@ -1,6 +1,6 @@
 package com.example.ipz_project_2.fragments
 
-//import RSAKotlinDemo3
+import RSAEncoding
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,7 +14,6 @@ import androidx.navigation.Navigation
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.example.ipz_project_2.FirebaseUserViewModel
 import com.example.ipz_project_2.R
 import com.example.ipz_project_2.User
 import com.example.ipz_project_2.databinding.FragmentRegisterBinding
@@ -23,23 +22,13 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.lang.Exception
 import java.math.BigInteger
 import java.security.MessageDigest
-import javax.xml.transform.ErrorListener
-import com.android.volley.VolleyError
-import com.android.volley.RequestQueue
-import com.android.volley.Response
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
-import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
-import com.example.ipz_project_2.data.contact.Contact
-import com.example.ipz_project_2.data.contact.ContactRepository
-import com.example.ipz_project_2.data.user.UserRepository
-import java.util.regex.Matcher
-import com.google.firebase.FirebaseError
 import com.google.firebase.database.*
+import java.util.*
 
 
 fun sha_256(input: String): String {
@@ -166,12 +155,20 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         val password: String = binding.passwordRegister.text.toString().trim()
         val newUserHash: String = getUserHash(username, phoneNumber)
 
+
+        val keyPairGenerator = RSAEncoding()
+        // Generate private and public key
+        val privateKey: String = Base64.getEncoder().
+        encodeToString(keyPairGenerator.privateKey.encoded)
+
+        val publicKey:  String = Base64.getEncoder().encodeToString(keyPairGenerator.publicKey.encoded)
+
         new_user = UserFB(
             username,
             email,
             phoneNumber,
-            "publicKey"
-        )  //TODO IMPLEMENT ENCRYPTION METHOD TO GET KEYS
+            publicKey
+        )
         if (this.isValidPassword(password)) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener() { it ->
@@ -187,7 +184,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
                         //user doesn't exist, lets register him
                         Log.d("Register", "createUserWithEmail:success")
 
-                        updateUI(auth.currentUser, new_user)
+                        updateUI(auth.currentUser, new_user, privateKey)
                     }
                 }
         } else {
@@ -200,7 +197,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     }
 
 
-    private fun updateUI(user: FirebaseUser?, new_user: UserFB) {
+    private fun updateUI(user: FirebaseUser?, new_user: UserFB, privateKey: String) {
 
         val appViewModel: AppViewModel by activityViewModels() {
             AppViewModelFactory(
@@ -213,7 +210,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         appViewModel.addUser(User(FirebaseAuth.getInstance().currentUser!!.uid,
             binding.emailRegister.text.toString().trim(),
             binding.phoneRegister.text.toString().trim(),
-            "privateKey"))
+            privateKey))
 
 
         mDatabase.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(new_user)

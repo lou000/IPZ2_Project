@@ -25,6 +25,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.security.PublicKey
 
 fun sha_256_(input: String): String {
     val md = MessageDigest.getInstance("SHA-1")
@@ -41,6 +42,7 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
 
     private lateinit var username: String
     private lateinit var phoneNumber: String
+    private lateinit var publicKey: String
 
     private lateinit var binding: FragmentAddNewContactBinding
 
@@ -97,8 +99,8 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
                     if (snapshot.exists()) {
                         for (ds: DataSnapshot in snapshot.children) {
                             if (ds.child("phoneNumber").value == phoneNumber) {
-                                new_contact =
-                                    Contact(username, phoneNumber, ds.key.toString())
+                                new_contact =Contact(username, phoneNumber, ds.key.toString(),
+                                                     ds.child("publicKey").value.toString())
                                 appViewModel.addContact(new_contact)
                                 appViewModel.getLatestId().observe(viewLifecycleOwner,
                                     Observer { it ->
