@@ -1,14 +1,22 @@
 package com.example.ipz_project_2.fragments
 
 import RSAEncoding
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.android.volley.Request
@@ -27,8 +35,11 @@ import java.security.MessageDigest
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
+import com.example.ipz_project_2.data.contact.Contact
+import com.example.ipz_project_2.data.contact.UserContactsCrossRef
 import com.google.firebase.database.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 fun sha_256(input: String): String {
@@ -36,6 +47,7 @@ fun sha_256(input: String): String {
     return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
 }
 
+const val PERMISSION_REQUEST_CONTACTS = 0
 class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListener {
 
     data class UserFB(
@@ -45,6 +57,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         val publicKey: String
     )
 
+    var localContacts = ArrayList<Pair<String, String>>()
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var registerButton: Button
     private var hash: String? = null
@@ -63,6 +76,13 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     private lateinit var currentUser: FirebaseUser
     private lateinit var ip: String
     private lateinit var new_user: UserFB
+    val appViewModel: AppViewModel by activityViewModels() {
+        AppViewModelFactory(
+            (requireActivity().application as ChatMessageApplication).chatRepository,
+            (requireActivity().application as ChatMessageApplication).contactRepository,
+            (requireActivity().application as ChatMessageApplication).userRepository
+        )
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +102,35 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 //            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)//TODO
 
         }
+
+        var requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { permissionGranted ->
+            if (permissionGranted) {
+                //TODO: make it work async
+                localContacts = loadContacts()
+            } else {
+                Toast.makeText(
+                    activity,
+                    "The app was not allowed to read your contacts",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        when (PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.checkSelfPermission(
+                requireContext().applicationContext,
+                Manifest.permission.READ_CONTACTS
+            ) -> {
+                //TODO: make it work async
+                localContacts = loadContacts()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            }
+        }
+
         getIP()
     }
 
@@ -158,8 +207,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
         val keyPairGenerator = RSAEncoding()
         // Generate private and public key
-        val privateKey: String = Base64.getEncoder().
-        encodeToString(keyPairGenerator.privateKey.encoded)
+        val privateKey: String = Base64.getEncoder().encodeToString(keyPairGenerator.privateKey.encoded)
 
         val publicKey:  String = Base64.getEncoder().encodeToString(keyPairGenerator.publicKey.encoded)
 
@@ -198,22 +246,123 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
 
 
     private fun updateUI(user: FirebaseUser?, new_user: UserFB, privateKey: String) {
-
-        val appViewModel: AppViewModel by activityViewModels() {
-            AppViewModelFactory(
-                (requireActivity().application as ChatMessageApplication).chatRepository,
-                (requireActivity().application as ChatMessageApplication).contactRepository,
-                (requireActivity().application as ChatMessageApplication).userRepository
-            )
-        }
-
         appViewModel.addUser(User(FirebaseAuth.getInstance().currentUser!!.uid,
             binding.emailRegister.text.toString().trim(),
             binding.phoneRegister.text.toString().trim(),
             privateKey))
 
-
+        importMatchingContacts()
         mDatabase.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(new_user)
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CONTACTS) {
+            if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                loadContacts()
+            } else {
+                Toast.makeText(
+                    activity,
+                    "The app was not allowed to read your contacts",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun importMatchingContacts()
+    {
+        mDatabase.child("user")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (ds: DataSnapshot in snapshot.children) {
+                            for (pair in localContacts) {
+                                if (ds.child("phoneNumber").value == pair.second) {
+                                    val newContact = Contact(
+                                        pair.first, pair.second, ds.key.toString(),
+                                        ds.child("publicKey").value.toString()
+                                    )
+                                    Toast.makeText(
+                                        activity,
+                                        "Adding contact: ${pair.first}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    appViewModel.addContact(newContact)
+                                    appViewModel.getLatestId().observe(viewLifecycleOwner,
+                                        Observer { it ->
+                                            if (it != null) {
+                                                appViewModel.joinUserContacts(
+                                                    UserContactsCrossRef(
+                                                        appViewModel.user2(currentUser.uid).userId,
+                                                        it
+                                                    )
+                                                )
+                                            }
+                                        })
+                                }
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
+    }
+
+    @SuppressLint("Range")
+    private fun loadContacts() : ArrayList<Pair<String, String>>{
+
+        val contacts = ArrayList<Pair<String, String>>()
+        val resolver: ContentResolver? = activity?.contentResolver
+        val cursor = resolver?.query(
+            ContactsContract.Contacts.CONTENT_URI, null, null,
+            null)
+
+        if (cursor != null) {
+            if (cursor.count > 0) {
+                while (cursor.moveToNext()) {
+                    val id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                    val name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                    val phoneNumber = (cursor.getString(
+                        cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))).toInt()
+
+                    if (phoneNumber > 0) {
+                        val cursorPhone = resolver.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", arrayOf(id), null)
+
+                        if (cursorPhone != null) {
+                            if(cursorPhone.count > 0) {
+                                while (cursorPhone.moveToNext()) {
+                                    val phoneNumValue = cursorPhone.getString(cursorPhone.getColumnIndex(
+                                        ContactsContract.CommonDataKinds.Phone.NUMBER))
+                                    contacts.add(Pair(name, phoneNumValue))
+                                }
+                            }
+                        }
+                        cursorPhone?.close()
+                    }
+                }
+            } else {
+                Toast.makeText(
+                    activity,
+                    "No contacts dude",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        cursor?.close()
+        return contacts
+    }
 }
+
+
+
+

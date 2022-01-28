@@ -28,7 +28,7 @@ interface ContactsDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(join: UserContactsCrossRef)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(contact: Contact)
 
     @Delete
