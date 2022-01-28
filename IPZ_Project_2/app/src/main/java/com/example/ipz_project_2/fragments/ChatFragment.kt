@@ -114,7 +114,8 @@ class ChatFragment : Fragment() {
 
         requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility =
             View.GONE
-
+        binding.btnDeleteRecChat.isEnabled = false
+        binding.btnDoneChat.isEnabled = false
         timer = binding.recordTimerChat
 
         chatMessages = mutableListOf()
@@ -206,10 +207,12 @@ class ChatFragment : Fragment() {
                 isRecorded = false
                 timeWhenStopped = 0
                 hideButtons()
+                binding.btnDoneChat.isEnabled = false
             } else {
                 stopRecording()
                 binding.btnDoneChat.setImageResource(R.drawable.ic_round_send_message)
                 isRecorded = true
+                binding.btnDeleteRecChat.isEnabled = true
             }
         }
 
@@ -221,6 +224,7 @@ class ChatFragment : Fragment() {
                 isRecorded = false
                 timeWhenStopped = 0
                 hideButtons()
+                binding.btnDeleteRecChat.isEnabled = false
             } else {
                 stopRecording()
                 File("$dirPath/$filename.mp3").delete()
@@ -508,6 +512,7 @@ class ChatFragment : Fragment() {
     }
 
     private fun startRecording() {
+        binding.btnDoneChat.isEnabled = true
         timer.base = SystemClock.elapsedRealtime() - timeWhenStopped
         timer.start()
         dirPath = requireActivity().getExternalFilesDir("/")?.absolutePath.toString()
