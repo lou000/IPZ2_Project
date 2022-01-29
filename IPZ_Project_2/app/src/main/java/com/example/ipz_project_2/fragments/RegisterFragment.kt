@@ -53,20 +53,20 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         val publicKey: String
     )
 
-    private var wifiPermissions =
-        arrayOf(
-            Manifest.permission.READ_SMS,
-            Manifest.permission.READ_PHONE_NUMBERS,
-            Manifest.permission.READ_PHONE_STATE
-        )
-
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                Log.e("Permission", "${it.key} = ${it.value}")
-            }
-        }
-    private lateinit var telephonyManager: TelephonyManager
+//    private var wifiPermissions =
+//        arrayOf(
+//            Manifest.permission.READ_SMS,
+//            Manifest.permission.READ_PHONE_NUMBERS,
+//            Manifest.permission.READ_PHONE_STATE
+//        )
+//
+//    private val requestMultiplePermissions =
+//        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+//            permissions.entries.forEach {
+//                Log.e("Permission", "${it.key} = ${it.value}")
+//            }
+//        }
+//    private lateinit var telephonyManager: TelephonyManager
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var registerButton: Button
     private var hash: String? = null
@@ -90,7 +90,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
-requestPermissions()
+
         database = Firebase.database
         mDatabase = database.getReference("user")
         if (auth.currentUser != null) { //TODO Make function of this
@@ -121,20 +121,7 @@ requestPermissions()
 
         accountAlreadyCreated.setOnClickListener(this)
         registerButton.setOnClickListener(this)
-        binding.phoneRegister.onFocusChangeListener  = View.OnFocusChangeListener { view, b ->
-            if (b){
-                // do something when edit text get focus
-                getPhoneNumber()
-            }else{
-//                // do something when edit text lost focus
-//                textView.text = "EditText lost focus."
-//                textView.append("\nSoft keyboard hide.")
-//                textView.append("\n\nYou entered : ${editText.text}")
-//
-//                // hide soft keyboard when edit text lost focus
-//                hideSoftKeyboard(editText)
-            }
-        }
+
     }
 
 
@@ -161,7 +148,7 @@ requestPermissions()
         when (v!!.id) {
             accountAlreadyCreated.id -> navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
             registerButton.id -> validateForm()
-            binding.phoneRegister.id -> getPhoneNumber()
+
 
         }
     }
@@ -276,57 +263,57 @@ requestPermissions()
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
 
-    private fun requestPermissions() {
-        var arr: Array<String> = arrayOf()
-        val permissionToAsk: MutableList<String> = arr.toMutableList()
-
-        for (permission in wifiPermissions) {
-            permissionToAsk.add(permission)
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireContext(), permission
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    Log.d("Permission", "Permisison...")
-                }
-                this.shouldShowRequestPermissionRationale(permission) -> {
-                    Snackbar.make(
-                        requireActivity().findViewById(android.R.id.content),
-                        "PERMISSION NEEDED FOR WIFI MONITOR TO WORK", //MAKE ARRAY OF 4 WITH TEXTS FOR EACH WEDLUG DOKUMENTAJII TEO CO SIE WPISE W MANIFESCIE
-                        Snackbar.LENGTH_INDEFINITE
-                    ).setAction("DISMISS", View.OnClickListener {
-                        println("Snackbar Set Action - OnClick.")
-                    }).show()
-                }
-                else -> {
-//                    permissionToAsk.add(permission)
-                    Log.d("Permission", permission)  // Log state of permissions
-                }
-            }
-        }
-        requestMultiplePermissions.launch(permissionToAsk.toTypedArray())
-    }
-
-
-    private fun getPhoneNumber(){
-        telephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val phoneNnumber = if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_SMS
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_PHONE_NUMBERS
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_PHONE_STATE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions()
-            return
-        }else
-            telephonyManager.line1Number
-        Log.e("TESTINF", phoneNnumber)
-        Log.e("TESTINF", "phoneNnumber")
-        binding.phoneRegister.setText(phoneNnumber)
-    }
+//    private fun requestPermissions() {
+//        var arr: Array<String> = arrayOf()
+//        val permissionToAsk: MutableList<String> = arr.toMutableList()
+//
+//        for (permission in wifiPermissions) {
+//            permissionToAsk.add(permission)
+//            when {
+//                ContextCompat.checkSelfPermission(
+//                    requireContext(), permission
+//                ) == PackageManager.PERMISSION_GRANTED -> {
+//                    Log.d("Permission", "Permisison...")
+//                }
+//                this.shouldShowRequestPermissionRationale(permission) -> {
+//                    Snackbar.make(
+//                        requireActivity().findViewById(android.R.id.content),
+//                        "PERMISSION NEEDED FOR WIFI MONITOR TO WORK", //MAKE ARRAY OF 4 WITH TEXTS FOR EACH WEDLUG DOKUMENTAJII TEO CO SIE WPISE W MANIFESCIE
+//                        Snackbar.LENGTH_INDEFINITE
+//                    ).setAction("DISMISS", View.OnClickListener {
+//                        println("Snackbar Set Action - OnClick.")
+//                    }).show()
+//                }
+//                else -> {
+////                    permissionToAsk.add(permission)
+//                    Log.d("Permission", permission)  // Log state of permissions
+//                }
+//            }
+//        }
+//        requestMultiplePermissions.launch(permissionToAsk.toTypedArray())
+//    }
+//
+//
+//    private fun getPhoneNumber(){
+//        telephonyManager = requireActivity().getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//        val phoneNnumber = if (ActivityCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.READ_SMS
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.READ_PHONE_NUMBERS
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.READ_PHONE_STATE
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            requestPermissions()
+//            return
+//        }else
+//            telephonyManager.line1Number
+//        Log.e("TESTINF", phoneNnumber)
+//        Log.e("TESTINF", "phoneNnumber")
+//        binding.phoneRegister.setText(phoneNnumber)
+//    }
 
 }
