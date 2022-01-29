@@ -47,7 +47,6 @@
         android:layout_marginTop="8dp"
         android:background="@android:drawable/screen_background_light"
         android:ems="10"
-
         android:hint="Phone Number"
         android:inputType="phone"
         android:paddingStart="16dp"
