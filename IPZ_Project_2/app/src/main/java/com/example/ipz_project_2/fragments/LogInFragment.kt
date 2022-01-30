@@ -1,5 +1,6 @@
 package com.example.ipz_project_2.fragments
 
+import RSAEncoding
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.android.volley.Request
@@ -18,36 +21,40 @@ import com.example.ipz_project_2.databinding.FragmentLogInBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.android.volley.Response
 import org.json.JSONObject
-import com.example.ipz_project_2.fragments.LogInFragmentDirections
-import android.app.AlarmManager
+import java.util.*
 
-import android.app.PendingIntent
-import android.content.Context
-
-import android.content.Intent
 import androidx.navigation.fragment.findNavController
-import kotlin.system.exitProcess
-import com.example.ipz_project_2.MainActivity
-import com.example.ipz_project_2.data.AppDatabase
+import com.example.ipz_project_2.User
+import com.example.ipz_project_2.data.chatmessage.AppViewModel
+import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
+import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
+import com.example.ipz_project_2.data.contact.Contact
+import com.example.ipz_project_2.data.contact.UserContactsCrossRef
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 fun hashMailPassword(mail: String, password: String): String {
     val to_encode = mail + password
-    val res = String(sha_256(to_encode).toByteArray())
-    Log.i("hash", res)
-    return res
+    return String(sha_256(to_encode).toByteArray())
 }
 
 class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
     private lateinit var loginButton: Button
-//    private lateinit var logoutButton: Button
     private lateinit var binding: FragmentLogInBinding
     private lateinit var navController: NavController
     private lateinit var auth: FirebaseAuth
     lateinit var mailPasswordHash: String
+
+    val appViewModel: AppViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,38 +80,27 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         loginButton.setOnClickListener(this)
         binding.backToRegisterSpan.setOnClickListener(this)
         binding.forgotPasswordSpan.setOnClickListener(this)
-//        logoutButton = binding.logOffButtonLogin
-//        logoutButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
-        Log.d(TAG, "On click action")
         when (v!!.id) {
-
             loginButton.id -> LoginUser()
             binding.backToRegisterSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_register_fragment)
             binding.forgotPasswordSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_forgotPasswordFragment)
-//            logoutButton.id -> LogOutUser()
-
         }
-    }
-
-    fun LogOutUser() {
-        Log.d(TAG, "Log out button clicked")
-        FirebaseAuth.getInstance().signOut()
     }
 
 
     fun LoginUser() {
         val email: String = binding.emailEdittextLogIn.text.toString().trim()
         val password: String = binding.passwordEdittextLogIn.text.toString().trim()
-        Log.d(TAG, "Login button clicked")
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener() { task ->
                 if (task.isSuccessful) {
+                    verifyUser()
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
-//                    navController.navigate(LogInFragmentDirections.actionLogInFragmentToNewMessageFragment())
                     getOTP(email, password)
                 } else {
                     // If sign in fails, display a message to the user.
@@ -116,6 +112,78 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
                 }
             }
     }
+
+    private fun verifyUser() {
+        val db = Firebase.database.reference
+        val appViewModel: AppViewModel by activityViewModels() {
+            AppViewModelFactory(
+                (requireActivity().application as ChatMessageApplication).chatRepository,
+                (requireActivity().application as ChatMessageApplication).contactRepository,
+                (requireActivity().application as ChatMessageApplication).userRepository
+            )
+        }
+
+
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            appViewModel.user(uid).observe(viewLifecycleOwner, Observer { user ->
+                if (user == null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                    db.child("user").child("$uid")
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                if (snapshot.exists()) {
+                                    Log.e("TESTINF", "$snapshot")
+                                    val email: String =
+                                        binding.emailEdittextLogIn.text.toString().trim()
+                                    val keyPairGenerator = RSAEncoding()
+                                    val privateKey: String = Base64.getEncoder()
+                                        .encodeToString(keyPairGenerator.privateKey.encoded)
+                                    val publicKey: String = Base64.getEncoder()
+                                        .encodeToString(keyPairGenerator.publicKey.encoded)
+                                    appViewModel.addUser(
+                                        User(
+                                            uid,
+                                            email,
+                                            snapshot.child("phoneNumber").value as String,
+                                            privateKey
+                                        )
+                                    )
+                                    db.child("user").child("$uid")
+                                        .child("publicKey").setValue(
+                                            publicKey
+                                        )
+                                    data class UpdateStruct(val publicKey: String)
+                                    db.child("updates")
+                                        .child(FirebaseAuth.getInstance().currentUser!!.uid)
+                                        .setValue(UpdateStruct(publicKey))
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                TODO("Not yet implemented")
+                            }
+                        })
+                }}
+            })
+        }
+    }
+
+//    private fun updateContactsPublicKey(publicKey: String, appViewModel: AppViewModel) {
+//
+//        data class UpdateStruct(val publicKey: String)
+//        val db = Firebase.database.reference
+//        appViewModel.usersContacts(FirebaseAuth.getInstance().currentUser!!.uid)
+//            .observe(viewLifecycleOwner, { it ->
+//                if (it != null) {
+//                    if (it.isNotEmpty()) {
+//                        for (contact in it[0].contacts){
+//                            db.child("updates").child(contact.contactUid).child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(UpdateStruct(publicKey))
+//                        }
+//                    }
+//                }
+//            })
+//        }
 
 
     private fun getOTP(mail: String, password: String) {
@@ -160,14 +228,12 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
     }
 
     private fun updateUI() {
-        //TODO: change to fragment with otp code input
         val action = LogInFragmentDirections.actionLogInFragmentToOtpcode(hash = mailPasswordHash)
         navController.navigate(action)
     }
 
     companion object {
         private const val TAG = "LOGIN"
-
     }
 }
 

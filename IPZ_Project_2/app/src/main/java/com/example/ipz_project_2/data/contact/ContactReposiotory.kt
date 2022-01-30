@@ -18,7 +18,7 @@ class ContactRepository(private  val contactsDao: ContactsDao) {
 
 
     val allContacts: Flow<MutableList<Contact>> = contactsDao.getAll()
-
+//    val allContactsUid: Flow<MutableList<String>> = contactsDao.getAllUid()
     fun userContacts(name: String): Flow<MutableList<UserWithContacts>> = contactsDao.getUserWithContacts(name)
 
 

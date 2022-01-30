@@ -10,6 +10,9 @@ interface ContactsDao {
     @Query("SELECT * FROM contacts ORDER BY name ASC")
     fun getAll(): Flow<MutableList<Contact>>
 
+//    @Query("SELECT contactUid FROM contacts")
+//    fun getAllUid(): Flow<MutableList<String>>
+
     @Query("SELECT contactId FROM contacts WHERE contactUid == :uid")
     fun getContactId(uid: String): Flow<Long>
 
