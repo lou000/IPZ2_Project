@@ -63,6 +63,7 @@ class AppViewModel(
     }
 
     val allContacts: LiveData<MutableList<Contact>> = contactRepository.allContacts.asLiveData()
+//    val allContactsUid: LiveData<MutableList<String>> = contactRepository.allContactsUid.asLiveData()
 
     fun addContact(contact: Contact) = viewModelScope.launch {
         contactRepository.addContact(contact)

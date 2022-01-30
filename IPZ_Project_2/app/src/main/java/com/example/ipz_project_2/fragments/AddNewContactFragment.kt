@@ -36,25 +36,19 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
 
 
     private lateinit var navController: NavController
-
     private lateinit var accountAlreadyCreated: TextView
     private lateinit var addContact: Button
-
     private lateinit var username: String
     private lateinit var phoneNumber: String
     private lateinit var publicKey: String
-
     private lateinit var binding: FragmentAddNewContactBinding
-
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var mDatabase: DatabaseReference
     private lateinit var new_contact: Contact
     private lateinit var add_button: Button
+
     private val args by navArgs<AddNewContactFragmentArgs>()
-
-//    private lateinit var appUser: User
-
 
     val appViewModel: AppViewModel by activityViewModels()
 
@@ -74,8 +68,6 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-
         navController = Navigation.findNavController(view)
         auth = Firebase.auth
         database = Firebase.database
