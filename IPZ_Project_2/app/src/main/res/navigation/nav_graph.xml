@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/register_fragment"
         android:name="com.example.ipz_project_2.fragments.RegisterFragment"
-        android:label="Regiter"
+        android:label="Register"
         tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_register_fragment_to_log_in_fragment"
@@ -63,7 +63,7 @@
     <fragment
         android:id="@+id/voiceRecordingsListFragment"
         android:name="com.example.ipz_project_2.fragments.VoiceRecordingsListFragment"
-        android:label="fragment_voice_recordings_list"
+        android:label="All Messages"
         tools:layout="@layout/fragment_voice_recordings_list" />
     <fragment
         android:id="@+id/newMessageFragment"

@@ -5,6 +5,7 @@
     android:id="@+id/voice_recordings_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".fragments.VoiceRecordingsFragment">
 
 
@@ -29,6 +30,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
+            app:tint="@color/background"
             android:id="@+id/btnDeleteRec"
             android:layout_width="@dimen/btn_size_recorder"
             android:layout_height="@dimen/btn_size_recorder"
@@ -36,6 +38,7 @@
             android:src="@drawable/ic_trashcan" />
 
         <ImageButton
+            app:tint="#FF403F"
             android:id="@+id/btnRecord"
             android:layout_width="66dp"
             android:layout_height="66dp"
@@ -45,6 +48,7 @@
             android:src="@drawable/ic_record"/>
 
         <ImageButton
+            app:tint="@color/background"
             android:id="@+id/btnList"
             android:layout_width="@dimen/btn_size_recorder"
             android:layout_height="@dimen/btn_size_recorder"
@@ -53,6 +57,7 @@
             />
 
         <ImageButton
+            app:tint="@color/background"
             android:id="@+id/btnDone"
             android:layout_width="@dimen/btn_size_recorder"
             android:layout_height="@dimen/btn_size_recorder"

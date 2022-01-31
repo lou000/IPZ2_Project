@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/log_off"
-        android:title="log_off"
+        android:title="Log out"
         app:showAsAction="ifRoom"/>
 
 

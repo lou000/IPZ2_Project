@@ -5,15 +5,16 @@
     android:id="@+id/login_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2196F3"
+    android:background="@color/background"
     tools:context=".fragments.LogInFragment">
 
     <Button
+        android:background="@color/secondaryAccent"
         android:id="@+id/login_button_register_log_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="LOGI IN"
+        android:text="LOGIN"
         app:layout_constraintEnd_toEndOf="@+id/password_edittext_log_in"
         app:layout_constraintStart_toStartOf="@+id/password_edittext_log_in"
         app:layout_constraintTop_toBottomOf="@+id/password_edittext_log_in"
@@ -50,18 +51,20 @@
         app:layout_constraintTop_toBottomOf="@+id/email_edittext_log_in" />
 
     <TextView
+        android:textColor="@color/secondaryAccent"
         android:id="@+id/back_to_register_span"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:clickable="true"
-        android:text="Back to regitration"
+        android:text="Back to registration"
         app:layout_constraintEnd_toEndOf="@+id/forgot_password_span"
         app:layout_constraintStart_toStartOf="@+id/forgot_password_span"
         app:layout_constraintTop_toBottomOf="@+id/forgot_password_span" />
 
 
     <TextView
+        android:textColor="@color/secondaryAccent"
         android:id="@+id/forgot_password_span"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

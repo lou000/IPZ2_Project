@@ -12,6 +12,9 @@
     <color name="grayDark">#656565</color>
     <color name="grayDarkDisabled">#8F8F8F</color>
     <color name="lightGray">#d3d3d3</color>
+    <color name="mainAccent">#2C456B</color>
+    <color name="secondaryAccent">#849FC6</color>
+    <color name="background">#1B2D48</color>
 
 
 </resources>

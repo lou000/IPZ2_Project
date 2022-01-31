@@ -4,17 +4,23 @@
         android:id="@+id/register_fragment"
         android:title="Register"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_chat_24"/>
+        android:icon="@drawable/ic_baseline_chat_24"
+        android:iconTint="@color/background"
+        />
     <item
         android:id="@+id/newMessageFragment"
         android:title="Chat"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_chat_24"/>
+        android:icon="@drawable/ic_baseline_chat_24"
+        android:iconTint="@color/background"
+        />
 
     <item
         android:id="@id/voiceRecordingsListFragment"
         android:title="VoiceRec"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_chat_24"/>
+        android:icon="@drawable/ic_baseline_chat_24"
+        android:iconTint="@color/background"
+        />
 
 </menu>
