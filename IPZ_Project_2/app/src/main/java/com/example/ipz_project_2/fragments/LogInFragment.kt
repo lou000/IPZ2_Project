@@ -31,6 +31,7 @@ import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
 import com.example.ipz_project_2.data.contact.Contact
 import com.example.ipz_project_2.data.contact.UserContactsCrossRef
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -74,6 +75,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentLogInBinding.bind(view)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.GONE
         navController = Navigation.findNavController(view)
 
         loginButton = binding.loginButtonRegisterLogIn
@@ -84,7 +86,7 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v!!.id) {
-            loginButton.id -> LoginUser()
+            loginButton.id -> validateForm()
             binding.backToRegisterSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_register_fragment)
             binding.forgotPasswordSpan.id -> findNavController().navigate(R.id.action_LogInFragment_to_forgotPasswordFragment)
         }
@@ -185,6 +187,21 @@ class LogInFragment : Fragment(R.layout.fragment_log_in), View.OnClickListener {
 //            })
 //        }
 
+
+private fun validateForm() {
+    val email: String = binding.emailEdittextLogIn.text.toString().trim()
+    val password: String = binding.passwordEdittextLogIn.text.toString().trim()
+
+    if(email.isNotEmpty() && password.isNotEmpty()){
+        LoginUser()
+    }
+    else{
+        Toast.makeText(
+            context, "Fields can't be empty",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+}
 
     private fun getOTP(mail: String, password: String) {
         Log.i("getOTP", " Called getOTP")
