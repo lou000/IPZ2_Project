@@ -22,6 +22,7 @@ import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
 import com.example.ipz_project_2.data.chatmessage.ChatMessageRepository
 import com.example.ipz_project_2.data.contact.*
 import com.example.ipz_project_2.data.user.UserRepository
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -81,6 +82,7 @@ class NewMessageFragment : Fragment(R.layout.fragment_new_message),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.VISIBLE
 
         Log.e("TESTINF", "onViewCreated")
 

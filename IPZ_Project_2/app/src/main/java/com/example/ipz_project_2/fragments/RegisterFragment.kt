@@ -27,6 +27,7 @@ import java.security.MessageDigest
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.chatmessage.AppViewModelFactory
 import com.example.ipz_project_2.data.chatmessage.ChatMessageApplication
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.*
 import java.util.*
 
@@ -74,21 +75,18 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         if (auth.currentUser != null) { //TODO Make function of this
             Log.d("Auth", "Logged in")
             currentUser = auth.currentUser!!
-//            navController.navigate(R.id.contactListFragment)
-//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)  //TODO
 
         } else {
             Log.d("Auth", "Not logged in")
-//            navController.navigate(R.id.action_register_fragment_to_log_in_fragment)//TODO
-
         }
-        getIP()
+//        getIP()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentRegisterBinding.bind(view)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.GONE
         navController = Navigation.findNavController(view)
 
         registerButton = binding.registerButton
@@ -119,7 +117,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
     override fun onClick(v: View?) {
         when (v!!.id) {
             accountAlreadyCreated.id -> navController.navigate(R.id.action_register_fragment_to_log_in_fragment)
-            registerButton.id -> registerUser()
+            registerButton.id -> validateForm()
 
         }
     }
@@ -216,4 +214,22 @@ class RegisterFragment : Fragment(R.layout.fragment_register), View.OnClickListe
         mDatabase.child(FirebaseAuth.getInstance().currentUser!!.uid).setValue(new_user)
         navController.navigate(R.id.action_register_fragment_to_newMessageFragment)
     }
+
+    private fun validateForm() {
+        val username: String = binding.usernameRegister.text.toString().trim()
+        val email: String = binding.emailRegister.text.toString().trim()
+        val phoneNumber: String = binding.phoneRegister.text.toString().trim()
+        val password: String = binding.passwordRegister.text.toString().trim()
+
+        if(username.isNotEmpty() && email.isNotEmpty() && phoneNumber.isNotEmpty() && password.isNotEmpty()){
+            registerUser()
+        }
+        else{
+            Toast.makeText(
+                context, "Fields can't be empty",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
 }

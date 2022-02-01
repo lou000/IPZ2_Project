@@ -18,6 +18,7 @@ import com.example.ipz_project_2.R
 import com.example.ipz_project_2.data.chatmessage.AppViewModel
 import com.example.ipz_project_2.data.contact.*
 import com.example.ipz_project_2.databinding.FragmentAddNewContactBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
@@ -73,6 +74,7 @@ class AddNewContactFragment : Fragment(R.layout.fragment_add_new_contact) {
         database = Firebase.database
         mDatabase = database.reference
         binding = FragmentAddNewContactBinding.bind(view)
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav_bar).visibility = View.GONE
         add_button = view.findViewById(R.id.add_new_contact_button)
         add_button.setOnClickListener { insertContactToDatabase() }
 

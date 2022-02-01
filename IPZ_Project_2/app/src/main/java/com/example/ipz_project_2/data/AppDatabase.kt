@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "IPZ2_DB_V4p"
+                    "IPZ2_DB_V4r"
                 ).allowMainThreadQueries().build()
                 INSTANCE = instance
                 instance
